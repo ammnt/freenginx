@@ -28,15 +28,11 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     libxslt-dev \
     tini \
 && cd /tmp && hg clone -r default https://freenginx.org/hg/nginx \
-&& sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"freenginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
-&& sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
-&& sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/ngx_http_header_filter_module.c \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/v2/ngx_http_v2_filter_module.c \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/v3/ngx_http_v3_filter_module.c \
-&& sed -i -e 's@<hr><center>nginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's/listen       80;/listen 8080;/g' /tmp/nginx/conf/nginx.conf \
@@ -46,8 +42,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e '1i pid /tmp/freenginx.pid;\n' /tmp/nginx/conf/nginx.conf \
 && addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --no-create-home \
 && hg clone https://hg.nginx.org/njs && (git clone https://boringssl.googlesource.com/boringssl /tmp/boringssl \
-&& cd /tmp/boringssl && git checkout --force --quiet e648990 \
-&& (grep -qxF 'SET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' /tmp/boringssl/crypto/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' >> /tmp/boringssl/crypto/CMakeLists.txt) \
+&& cd /tmp/boringssl && (grep -qxF 'SET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' /tmp/boringssl/crypto/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' >> /tmp/boringssl/crypto/CMakeLists.txt) \
 && (grep -qxF 'SET_TARGET_PROPERTIES(ssl PROPERTIES SOVERSION 1)' /tmp/boringssl/ssl/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(ssl PROPERTIES SOVERSION 1)' >> /tmp/boringssl/ssl/CMakeLists.txt) \
 && mkdir -p /tmp/boringssl/build && cmake -B/tmp/boringssl/build -S/tmp/boringssl -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 && make -C/tmp/boringssl/build -j$(getconf _NPROCESSORS_ONLN)) && cd /tmp/njs && ./configure \
