@@ -116,5 +116,5 @@ LABEL description="FreeNGINX built with QUIC and HTTP/3 support🚀" \
       org.opencontainers.image.source="https://github.com/ammnt/freenginx/"
 
 STOPSIGNAL SIGQUIT
-USER nginx
+USER freenginx
 CMD ["/usr/sbin/freenginx", "-g", "daemon off;"]
