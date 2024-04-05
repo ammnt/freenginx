@@ -37,12 +37,13 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/v2/ngx_http_v2_filter_module.c \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/v3/ngx_http_v3_filter_module.c \
 && sed -i -e 's@<hr><center>nginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
+&& sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's/listen       80;/listen 8080;/g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e 's@#tcp_nopush     on;@client_body_temp_path /tmp/client_temp;@g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e 's@#keepalive_timeout  0;@proxy_temp_path /tmp/proxy_temp;@g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e 's@#gzip  on;@fastcgi_temp_path /tmp/fastcgi_temp;@g' /tmp/nginx/conf/nginx.conf \
-&& sed -i -e '1i pid /tmp/nginx.pid;\n' /tmp/nginx/conf/nginx.conf \
+&& sed -i -e '1i pid /tmp/freenginx.pid;\n' /tmp/nginx/conf/nginx.conf \
 && addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --no-create-home \
 && hg clone https://hg.nginx.org/njs && (git clone https://boringssl.googlesource.com/boringssl /tmp/boringssl \
 && cd /tmp/boringssl && git checkout --force --quiet e648990 \
