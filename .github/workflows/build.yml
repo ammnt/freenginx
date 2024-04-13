@@ -28,7 +28,7 @@ jobs:
 
       - name: Install cosign
         if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@v3.4.0
+        uses: sigstore/cosign-installer@v3.5.0
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3.3.0
@@ -74,6 +74,9 @@ jobs:
           target: ghcr.io/ammnt/freenginx:http3
           tag: ghcr.io/ammnt/freenginx:http3
           overwrite: true
+      - run: echo "${REPORT}"
+        env:
+          REPORT: ${{ steps.slim.outputs.report }}
 
       - name: Test the Docker image
         run: |

@@ -1,4 +1,4 @@
-# FreeNGINX with HTTP/3 and QUIC support🚀
+# Distroless FreeNGINX with HTTP/3 and QUIC support🚀
 
 The Docker image is ready to use:<br>
 <code>docker run -d --rm -p 127.0.0.1:8080:8080/tcp ghcr.io/ammnt/freenginx:http3</code><br>
@@ -15,7 +15,7 @@ or<br>
 - Built using hardening GCC flags;
 - NJS support;
 - PCRE with JIT compilation;
-- zlib library latest version;
+- zlib-ng library latest version;
 - Rootless master process - unprivileged container;
 - Async I/O threads module;
 - "Distroless" image - shell removed from the image;

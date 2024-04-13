@@ -3,7 +3,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && apk -U upgrade && apk add --no-cache \
     openssl \
     pcre \
-    zlib \
+    zlib-ng \
     libgcc \
     libstdc++ \
     g++ \
@@ -18,7 +18,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     talloc-dev \
     libtool \
     pcre-dev \
-    zlib-dev \
+    zlib-ng-dev \
     binutils \
     gnupg \
     cmake \
@@ -98,18 +98,18 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/nginx && chmod -R g+w /etc/freenginx \
-&& update-ca-certificates && apk --purge del libgcc libstdc++ g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-dev binutils gnupg cmake mercurial go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
+&& update-ca-certificates && apk --purge del libgcc libstdc++ g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake mercurial go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
 && ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
 
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
 EXPOSE 8080/tcp 8443/tcp 8443/udp
-LABEL description="FreeNGINX built with QUIC and HTTP/3 support🚀" \
+LABEL description="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
       maintainer="ammnt <admin@msftcnsi.com>" \
-      org.opencontainers.image.description="FreeNGINX built with QUIC and HTTP/3 support🚀" \
+      org.opencontainers.image.description="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
       org.opencontainers.image.authors="ammnt, admin@msftcnsi.com" \
-      org.opencontainers.image.title="FreeNGINX built with QUIC and HTTP/3 support🚀" \
+      org.opencontainers.image.title="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
       org.opencontainers.image.source="https://github.com/ammnt/freenginx/"
 
 STOPSIGNAL SIGQUIT
