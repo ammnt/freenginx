@@ -40,7 +40,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@#keepalive_timeout  0;@proxy_temp_path /tmp/proxy_temp;@g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e 's@#gzip  on;@fastcgi_temp_path /tmp/fastcgi_temp;@g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e '1i pid /tmp/freenginx.pid;\n' /tmp/nginx/conf/nginx.conf \
-&& addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --no-create-home \
+&& addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
 && hg clone https://hg.nginx.org/njs && (git clone https://boringssl.googlesource.com/boringssl /tmp/boringssl \
 && cd /tmp/boringssl && git checkout --force --quiet e648990 \
 && (grep -qxF 'SET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' /tmp/boringssl/crypto/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' >> /tmp/boringssl/crypto/CMakeLists.txt) \
@@ -72,6 +72,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --with-http_ssl_module \
     --with-http_v2_module \
     --with-http_v3_module \
+    --with-http_gzip_static_module \
     --with-stream \
     --with-stream_realip_module \
     --with-stream_ssl_module \
