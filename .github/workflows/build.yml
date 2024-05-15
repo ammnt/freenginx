@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout repository🧱
-        uses: actions/checkout@v4.1.4
+        uses: actions/checkout@v4.1.5
 
       - name: Install cosign🔒
         uses: sigstore/cosign-installer@v3.5.0
@@ -80,7 +80,7 @@ jobs:
           curl -v http://127.0.0.1:8080 || exit 1
 
       - name: Analyze for critical and high CVEs💊
-        uses: docker/scout-action@v1.7.0
+        uses: docker/scout-action@v1.8.0
         with:
           command: cves,sbom
           image: ghcr.io/ammnt/freenginx:main
@@ -93,7 +93,7 @@ jobs:
           sarif_file: sarif.output.json
 
       - name: Run Trivy vulnerability scanner💊
-        uses: aquasecurity/trivy-action@0.19.0
+        uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: ghcr.io/ammnt/freenginx:main
           scan-type: image
