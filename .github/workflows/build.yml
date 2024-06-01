@@ -2,8 +2,8 @@ name: Build and push image📦
 
 on:
   workflow_dispatch:
-  # schedule:
-  #  - cron: "00 17 * * SAT"
+  schedule:
+    - cron: "00 12 1 * *"
   push:
     branches: ["main"]
   # pull_request:
@@ -35,14 +35,14 @@ jobs:
         uses: docker/setup-buildx-action@v3.3.0
 
       - name: Log into ${{ env.REGISTRY }}🔑
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.2.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log into Docker Hub🔑
-        uses: docker/login-action@v3.1.0
+        uses: docker/login-action@v3.2.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -81,7 +81,7 @@ jobs:
           curl -v http://127.0.0.1:8080 || exit 1
 
       - name: Analyze for critical and high CVEs💊
-        uses: docker/scout-action@v1.8.0
+        uses: docker/scout-action@v1.9.3
         with:
           command: cves,sbom
           image: ghcr.io/ammnt/freenginx:main
@@ -94,7 +94,7 @@ jobs:
           sarif_file: sarif.output.json
 
       - name: Run Trivy vulnerability scanner💊
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@0.21.0
         with:
           image-ref: ghcr.io/ammnt/freenginx:main
           scan-type: image
@@ -110,11 +110,17 @@ jobs:
           path: "${{ github.workspace }}/dependency-results.sbom.json"
           retention-days: 20
 
+      - name: Scan image with Anchore scanner🔍
+        uses: anchore/scan-action@v3.6.4
+        with:
+          image: ghcr.io/ammnt/freenginx:main
+          fail-build: true
+
       - name: Scan the image and upload dependency results🔍
         uses: anchore/sbom-action@v0.15.11
         with:
-          syft-version: v1.3.0
-          image: ghcr.io/ammnt/angie:main
+          syft-version: v1.5.0
+          image: ghcr.io/ammnt/freenginx:main
           artifact-name: image.spdx.json
           dependency-snapshot: false
 
@@ -124,10 +130,10 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          image: ghcr.io/ammnt/angie:main
+          image: ghcr.io/ammnt/freenginx:main
           args: --file=Dockerfile
 
-      - name: Upload result to GitHub Code Scanning📊
+      - name: Upload Snyk result to GitHub Code Scanning📊
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
