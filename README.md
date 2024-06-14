@@ -30,7 +30,7 @@ or<br>
 - Scanned effiniefficiency result with Dive tool;
 - Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Anchore, Clair and Syft;
 - Anonymous signature - removed "Server" header ("banner"):<br>
-https://github.com/ammnt/freenginx/blob/http3/Dockerfile
+https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
 # Note:
 
