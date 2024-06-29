@@ -28,7 +28,7 @@ or<br>
 - No excess ENTRYPOINT in the image;
 - Slimmed version by Docker Slim tool;
 - Scanned effiniefficiency result with Dive tool;
-- Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Anchore, Clair and Syft;
+- Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Grype, Clair and Syft;
 - Anonymous signature - removed "Server" header ("banner"):<br>
 https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
