@@ -28,6 +28,8 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     tini \
     musl-dev \
     ncurses-libs \
+    gd-dev \
+    brotli-libs \
 && cd /tmp && git clone https://github.com/freenginx/nginx \
 && sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
@@ -40,6 +42,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
 && git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone https://boringssl.googlesource.com/boringssl \
+&& git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
 && cd boringssl && mkdir build && cd /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 .. \
 && make && mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
 && cd /tmp/boringssl && cp build/crypto/libcrypto.so .openssl/lib && cp build/ssl/libssl.so .openssl/lib \
@@ -93,10 +96,11 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --without-mail_imap_module \
     --without-mail_smtp_module \
     --add-module=/tmp/njs/nginx \
+    --add-module=/tmp/ngx_brotli \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
-&& update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
+&& update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools gd-dev \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
 && ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
 

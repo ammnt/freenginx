@@ -17,7 +17,7 @@ or<br>
 - TLS 1.3 and 0-RTT support;
 - TLS 1.2 and TCP Fast Open (TFO) support;
 - Built using hardening GCC flags;
-- NJS support;
+- NJS and Brotli support;
 - PCRE with JIT compilation;
 - zlib-ng library latest version;
 - Rootless master process - unprivileged container;
