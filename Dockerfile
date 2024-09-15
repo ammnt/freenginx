@@ -56,7 +56,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --group=freenginx \
     --http-log-path=/tmp/access.log \
     --error-log-path=/tmp/error.log \
-    --conf-path=/etc/nginx/nginx.conf \
+    --conf-path=/etc/freenginx/nginx.conf \
     --pid-path=/tmp/freenginx.pid \
     --lock-path=/tmp/freenginx.lock \
     --http-client-body-temp-path=/var/cache/freenginx/client_temp \
@@ -103,6 +103,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
 && ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
 
+COPY ./nginx.conf /etc/freenginx/nginx.conf
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
 EXPOSE 8080/tcp 8443/tcp 8443/udp
