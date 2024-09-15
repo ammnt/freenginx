@@ -56,7 +56,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --group=freenginx \
     --http-log-path=/tmp/access.log \
     --error-log-path=/tmp/error.log \
-    --conf-path=/etc/freenginx/nginx.conf \
+    --conf-path=/etc/freenginx/freenginx.conf \
     --pid-path=/tmp/freenginx.pid \
     --lock-path=/tmp/freenginx.lock \
     --http-client-body-temp-path=/var/cache/freenginx/client_temp \
@@ -98,12 +98,12 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --add-module=/tmp/njs/nginx \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
-&& chown -R freenginx:freenginx /etc/nginx && chmod -R g+w /etc/freenginx \
+&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
 && update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
 && ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
 
-COPY ./nginx.conf /etc/freenginx/nginx.conf
+COPY ./freenginx.conf /etc/freenginx/freenginx.conf
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
 EXPOSE 8080/tcp 8443/tcp 8443/udp
