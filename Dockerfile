@@ -40,12 +40,12 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@#gzip  on;@fastcgi_temp_path /tmp/fastcgi_temp;@g' /tmp/nginx/conf/nginx.conf \
 && sed -i -e '1i pid /tmp/freenginx.pid;\n' /tmp/nginx/conf/nginx.conf \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
-&& git clone https://github.com/nginx/njs && (git clone https://boringssl.googlesource.com/boringssl /tmp/boringssl \
-&& cd /tmp/boringssl && git checkout --force --quiet e648990 \
-&& (grep -qxF 'SET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' /tmp/boringssl/crypto/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(crypto PROPERTIES SOVERSION 1)' >> /tmp/boringssl/crypto/CMakeLists.txt) \
-&& (grep -qxF 'SET_TARGET_PROPERTIES(ssl PROPERTIES SOVERSION 1)' /tmp/boringssl/ssl/CMakeLists.txt || echo -e '\nSET_TARGET_PROPERTIES(ssl PROPERTIES SOVERSION 1)' >> /tmp/boringssl/ssl/CMakeLists.txt) \
-&& mkdir -p /tmp/boringssl/build && cmake -B/tmp/boringssl/build -S/tmp/boringssl -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-&& make -C/tmp/boringssl/build -j$(getconf _NPROCESSORS_ONLN)) && cd /tmp/njs && ./configure \
+&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone https://boringssl.googlesource.com/boringssl \
+&& cd boringssl && mkdir build && cd /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 .. \
+&& make && mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
+&& cd /tmp/boringssl && cp build/crypto/libcrypto.so .openssl/lib && cp build/ssl/libssl.so .openssl/lib \
+&& cp /tmp/boringssl/.openssl/lib/libssl.so /usr/lib/ && cp /tmp/boringssl/.openssl/lib/libcrypto.so /usr/lib \
+&& touch /tmp/boringssl/.openssl/include/openssl/ssl.h && cd /tmp/njs && ./configure \
 && make -j "${NB_CORES}" && make clean && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
     --with-debug \
     --prefix=/etc/freenginx \
