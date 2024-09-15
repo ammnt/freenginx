@@ -26,6 +26,8 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     libxslt \
     libxslt-dev \
     tini \
+    musl-dev \
+    ncurses-libs \
 && cd /tmp && git clone https://github.com/freenginx/nginx \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"freenginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
@@ -97,7 +99,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/nginx && chmod -R g+w /etc/freenginx \
-&& update-ca-certificates && apk --purge del libgcc libstdc++ g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
+&& update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
 && ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
 
