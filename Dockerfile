@@ -29,6 +29,8 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     musl-dev \
     ncurses-libs \
 && cd /tmp && git clone https://github.com/freenginx/nginx \
+&& sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
+&& sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"freenginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/ngx_http_header_filter_module.c \
