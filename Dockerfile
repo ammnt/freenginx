@@ -43,14 +43,11 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
-&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone -b "${OPENSSL_BRANCH}" https://boringssl.googlesource.com/boringssl \
-&& git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
-&& cd boringssl && mkdir build && cd /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 .. \
-&& make && mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
-&& cd /tmp/boringssl && cp build/crypto/libcrypto.so .openssl/lib && cp build/ssl/libssl.so .openssl/lib \
-&& cp /tmp/boringssl/.openssl/lib/libssl.so /usr/lib/ && cp /tmp/boringssl/.openssl/lib/libcrypto.so /usr/lib \
-&& touch /tmp/boringssl/.openssl/include/openssl/ssl.h && cd /tmp/njs && ./configure \
-&& make -j "${NB_CORES}" && make clean && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
+&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
+&& git clone -b ${OPENSSL_BRANCH} https://boringssl.googlesource.com/boringssl && cd /tmp/boringssl && git checkout --force --quiet e648990 \
+&& mkdir -p /tmp/boringssl/build && cmake -B/tmp/boringssl/build -S/tmp/boringssl -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+&& make -C/tmp/boringssl/build -j$(getconf _NPROCESSORS_ONLN) && cd /tmp/njs && ./configure && make -j "${NB_CORES}" \
+&& make clean && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
     --with-debug \
     --prefix=/etc/freenginx \
     --sbin-path=/usr/sbin/freenginx \
