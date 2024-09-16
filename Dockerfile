@@ -1,5 +1,5 @@
 FROM docker.io/library/alpine:latest
-ENV APP_BRANCH release-1.27.1
+ENV APP_BRANCH release-1.27.4
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && apk -U upgrade && apk add --no-cache \
     openssl \
