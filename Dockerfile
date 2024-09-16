@@ -1,4 +1,5 @@
 FROM docker.io/library/alpine:latest
+ENV APP_BRANCH release-1.27.1
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && apk -U upgrade && apk add --no-cache \
     openssl \
@@ -30,7 +31,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     ncurses-libs \
     gd-dev \
     brotli-libs \
-&& cd /tmp && git clone https://github.com/freenginx/nginx \
+&& cd /tmp && git clone -b "${APP_BRANCH}" https://github.com/freenginx/nginx \
 && sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
