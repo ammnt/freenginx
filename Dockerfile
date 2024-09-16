@@ -1,4 +1,5 @@
 FROM docker.io/library/alpine:latest
+ENV OPENSSL_BRANCH master
 ENV APP_BRANCH release-1.27.4
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && apk -U upgrade && apk add --no-cache \
@@ -42,7 +43,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
-&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone https://boringssl.googlesource.com/boringssl \
+&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone -b "${OPENSSL_BRANCH}" https://boringssl.googlesource.com/boringssl \
 && git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
 && cd boringssl && mkdir build && cd /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 .. \
 && make && mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
