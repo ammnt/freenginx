@@ -12,7 +12,8 @@ or<br>
 # Description:
 
 - Based on latest version of Alpine Linux - low size (~4 MB);
-- BoringSSL with HTTP/3 and QUIC support;
+- BoringSSL with HTTP/3 and QUIC support:
+https://boringssl.googlesource.com/boringssl
 - HTTP/2 with ALPN support;
 - TLS 1.3 and 0-RTT support;
 - TLS 1.2 and TCP Fast Open (TFO) support;
