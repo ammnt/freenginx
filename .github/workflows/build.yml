@@ -169,8 +169,10 @@ jobs:
           docker tag ${{ github.repository }}:${{ env.APP_VERSION }} ${{ github.repository }}:latest
           docker tag ${{ github.repository }}:${{ env.APP_VERSION }} ammnt/freenginx:${{ env.APP_VERSION }}
           docker tag ${{ github.repository }}:${{ env.APP_VERSION }} ammnt/freenginx:latest
-          docker push ${{ github.repository }} --all-tags
-          docker push ammnt/freenginx --all-tags
+          docker push ${{ github.repository }}:${{ env.APP_VERSION }}
+          docker push ${{ github.repository }}:latest
+          docker push ammnt/freenginx:${{ env.APP_VERSION }}
+          docker push ammnt/freenginx:latest
           DIGEST=$(docker images --no-trunc --quiet ${{ github.repository }}:${{ env.APP_VERSION }})
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
 
