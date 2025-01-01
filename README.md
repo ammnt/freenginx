@@ -27,6 +27,10 @@ services:
     security_opt:
       - no-new-privileges:true
       - apparmor:docker-freenginx
+    volumes:
+      - "./conf:/etc/freenginx:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
 ...
 ```
 
