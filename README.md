@@ -10,7 +10,25 @@
 The Docker image is ready to use:<br>
 <code>docker run -d --name freenginx -p 80:8080/tcp -p 443:8443/tcp -p 443:8443/udp ghcr.io/ammnt/freenginx:latest</code><br>
 or<br>
-<code>docker run -d --name freenginx -p 80:8080/tcp -p 443:8443/tcp -p 443:8443/udp ammnt/freenginx:latest</code>
+<code>docker run -d --name freenginx -p 80:8080/tcp -p 443:8443/tcp -p 443:8443/udp ammnt/freenginx:latest</code><br>
+or with Docker Compose deployment:
+```
+services:
+  freenginx:
+    image: ammnt/freenginx:latest
+    user: "101:101"
+    read_only: true
+    privileged: false
+    tmpfs:
+     - /tmp:mode=1700,size=1G,noexec,nosuid,nodev,uid=101,gid=101
+    cap_drop:
+     - all
+    container_name: freenginx
+    security_opt:
+      - no-new-privileges:true
+      - apparmor:docker-freenginx
+...
+```
 
 # Description:
 
