@@ -181,7 +181,7 @@ jobs:
       #     --label org.opencontainers.image.source="https://github.com/ammnt/freenginx/" \
       #     --continue-after=5
 
-      - name: Dump th Slim report📊
+      - name: Upload the Slim report📊
         uses: actions/upload-artifact@v4.5.0
         with:
           name: slim.report
