@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  APP_VERSION: 1.8.0
+  APP_VERSION: 1.27.4
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
       - name: Install cosign🔒
         uses: sigstore/cosign-installer@v3.7.0
         with:
-          cosign-release: "v2.4.1"
+          cosign-release: "v2.4.2"
 
       - name: Setup Docker buildx🛠️
         uses: docker/setup-buildx-action@v3.8.0
@@ -167,25 +167,11 @@ jobs:
         env:
           REPORT: ${{ steps.slim.outputs.report }}
 
-      # - name: Slim the Docker image🚀
-      #   run: |
-      #     curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
-      #     tar -xvf ds.tar.gz
-      #     ./dist_linux/slim --verbose --debug build --target ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
-      #     --tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} --http-probe=false \
-      #     --label description="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
-      #     --label maintainer="ammnt <admin@msftcnsi.com>" \
-      #     --label org.opencontainers.image.description="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
-      #     --label org.opencontainers.image.authors="ammnt, admin@msftcnsi.com" \
-      #     --label org.opencontainers.image.title="Distroless FreeNGINX built with QUIC and HTTP/3 support🚀" \
-      #     --label org.opencontainers.image.source="https://github.com/ammnt/freenginx/" \
-      #     --continue-after=5
-
       - name: Upload the Slim report📊
         uses: actions/upload-artifact@v4.6.0
         with:
-          name: slim.report
-          path: "${{ github.workspace }}/slim.report.json"
+          name: slim.report.json
+          path: ${{ steps.slim.outputs.report }}
 
       - name: Explore the Docker image with Dive🔍
         timeout-minutes: 2
