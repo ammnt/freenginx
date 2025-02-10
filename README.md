@@ -54,7 +54,7 @@ https://boringssl.googlesource.com/boringssl
 - No excess ENTRYPOINT in the image;
 - Slimmed version by Docker Slim tool;
 - Scanned efficiency result with Dive tool;
-- Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Grype, Clair and Syft;
+- Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Grype, Clair, Dockle and Syft;
 - Anonymous signature - removed "Server" header ("banner"):<br>
 https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
