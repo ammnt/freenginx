@@ -1,6 +1,6 @@
 ARG BASE_VERSION=3.21.2
 ARG BASE_HASH=56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
-FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
+FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH} AS builder
 ARG OPENSSL_BRANCH=master
 ARG APP_BRANCH=release-1.27.4
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
@@ -102,9 +102,22 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
 && update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools gd-dev \
-&& rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk \
-&& ln -sf /dev/stdout /tmp/access.log && ln -sf /dev/stderr /tmp/error.log
+&& rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root.go /etc/apk
 
+FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
+RUN addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
+&& apk -U upgrade && apk add --no-cache \
+    openssl \
+    pcre \
+    zlib-ng \
+    libstdc++ \
+    tini \
+    brotli-libs \
+    libxslt
+
+COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
+COPY --from=builder /etc/freenginx /etc/freenginx
+COPY --from=builder /var/cache/freenginx /var/cache/freenginx
 COPY ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY ./default.conf /etc/freenginx/conf.d/default.conf
 
