@@ -113,7 +113,10 @@ RUN addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/n
     libstdc++ \
     tini \
     brotli-libs \
-    libxslt
+    libxslt \
+    ca-certificates \
+&& update-ca-certificates && apk --purge del ca-certificates apk-tools \
+&& rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
 
 COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder /etc/freenginx /etc/freenginx
