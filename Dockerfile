@@ -100,9 +100,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --add-module=/tmp/ngx_brotli \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
-&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
-&& update-ca-certificates && apk --purge del libgcc musl-dev g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools gd-dev \
-&& rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root.go /etc/apk
+&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx
 
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
 RUN addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
@@ -115,7 +113,7 @@ RUN addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/n
     brotli-libs \
     libxslt \
     ca-certificates \
-&& update-ca-certificates && apk --purge del ca-certificates apk-tools \
+&& update-ca-certificates && apk --purge del libgcc g++ make build-base linux-headers automake autoconf git talloc talloc-dev libtool zlib-ng-dev binutils gnupg cmake go pcre-dev ca-certificates openssl libxslt-dev apk-tools musl-dev zlib gd-dev \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
 
 COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
