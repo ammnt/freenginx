@@ -101,7 +101,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx
 
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
-RUN addgroup -S angie && adduser -S angie -s /sbin/nologin -G angie --uid 101 --no-create-home \
+RUN addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
 && apk -U upgrade && apk add --no-cache \
     pcre \
     tini \
