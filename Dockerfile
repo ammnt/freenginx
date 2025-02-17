@@ -1,7 +1,7 @@
 ARG BASE_VERSION=3.21.2
 ARG BASE_HASH=56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH} AS builder
-ARG OPENSSL_BRANCH=master
+ARG OPENSSL_BRANCH=main
 ARG APP_BRANCH=release-1.27.4
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
@@ -44,7 +44,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
-&& git clone -b ${OPENSSL_BRANCH} https://boringssl.googlesource.com/boringssl && cd /tmp/boringssl && git checkout --force --quiet e648990 \
+&& git clone -b ${OPENSSL_BRANCH} https://github.com/google/boringssl.git && cd /tmp/boringssl && git checkout --force --quiet e648990 \
 && mkdir -p /tmp/boringssl/build && cmake -B/tmp/boringssl/build -S/tmp/boringssl -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 && make -C/tmp/boringssl/build -j$(getconf _NPROCESSORS_ONLN) && cd /tmp/njs && ./configure && make -j "${NB_CORES}" \
 && make clean && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
