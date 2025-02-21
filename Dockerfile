@@ -1,7 +1,7 @@
 ARG BASE_VERSION=3.21.2
 ARG BASE_HASH=56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH} AS builder
-ARG OPENSSL_BRANCH=main
+ARG OPENSSL_BRANCH=0.20250212.0
 ARG APP_BRANCH=release-1.27.4
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
@@ -44,10 +44,13 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
-&& git clone -b ${OPENSSL_BRANCH} https://github.com/google/boringssl.git && cd /tmp/boringssl && git checkout --force --quiet e648990 \
-&& mkdir -p /tmp/boringssl/build && cmake -B/tmp/boringssl/build -S/tmp/boringssl -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-&& make -C/tmp/boringssl/build -j$(getconf _NPROCESSORS_ONLN) && cd /tmp/njs && ./configure && make -j "${NB_CORES}" \
-&& make clean && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
+&& git clone -b ${OPENSSL_BRANCH} https://boringssl.googlesource.com/boringssl && cd /tmp/boringssl \
+&& mkdir -p /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 && make -j$(getconf _NPROCESSORS_ONLN) && cd /tmp/njs && ./configure && make -j "${NB_CORES}" && make clean \
+&& mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
+&& cp /tmp/boringssl/crypto/libcrypto.so /tmp/boringssl/.openssl/lib \
+&& cp /tmp/boringssl/ssl/libssl.so /tmp/boringssl/.openssl/lib && cp /tmp/boringssl/ssl/libssl.so /usr/lib/ \
+&& cp /tmp/boringssl/crypto/libcrypto.so /usr/lib/ \
+&& mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
     --with-debug \
     --prefix=/etc/freenginx \
     --sbin-path=/usr/sbin/freenginx \
@@ -62,7 +65,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --http-proxy-temp-path=/var/cache/freenginx/proxy_temp \
     --http-fastcgi-temp-path=/var/cache/freenginx/fastcgi_temp \
     --with-cc-opt="-O3 -g -m64 -march=westmere -falign-functions=32 -flto -funsafe-math-optimizations -fstack-protector-strong --param=ssp-buffer-size=4 -Wimplicit-fallthrough=0 -Wno-error=strict-aliasing -Wformat -Wno-error=pointer-sign -Wno-implicit-function-declaration -Wno-int-conversion -Wno-error=unused-result -Wno-unused-result -fcode-hoisting -Werror=format-security -Wno-deprecated-declarations -Wp,-D_FORTIFY_SOURCE=2 -DTCP_FASTOPEN=23 -fPIC -I/tmp/boringssl/include" \
-    --with-ld-opt="-L/tmp/boringssl/build/ssl -L/tmp/boringssl/build/crypto" \
+    --with-ld-opt="-L/tmp/boringssl/ssl -L/tmp/boringssl/crypto" \
     --with-compat \
     --with-file-aio \
     --with-pcre-jit \
@@ -103,17 +106,21 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
 RUN addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
 && apk -U upgrade && apk add --no-cache \
+    libstdc++ \
+    libgcc \
     pcre \
     tini \
     brotli-libs \
     libxslt \
     ca-certificates \
-&& update-ca-certificates && apk --purge del ca-certificates libstdc++ libgcc apk-tools \
+&& update-ca-certificates && apk --purge del ca-certificates apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
 
 COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder /etc/freenginx /etc/freenginx
 COPY --from=builder /var/cache/freenginx /var/cache/freenginx
+COPY --from=builder /tmp/boringssl/ssl/libssl.so /usr/lib/libssl.so
+COPY --from=builder /tmp/boringssl/crypto/libcrypto.so /usr/lib/libcrypto.so
 COPY ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY ./default.conf /etc/freenginx/conf.d/default.conf
 
