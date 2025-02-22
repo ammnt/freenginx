@@ -36,16 +36,16 @@ services:
 
 # Description:
 
-- Based on latest version of Alpine Linux - low size (~4 MB);
-- BoringSSL with HTTP/3 and QUIC support:<br>
-https://boringssl.googlesource.com/boringssl
+- Based on latest version of Alpine Linux - low size (~5 MB);
+- OpenSSL with HTTP/3 and QUIC support:<br>
+https://github.com/openssl/openssl
 - HTTP/2 with ALPN support;
 - TLS 1.3 and 0-RTT support;
 - TLS 1.2 and TCP Fast Open (TFO) support;
 - Built using hardening GCC flags;
 - NJS and Brotli support;
 - PCRE with JIT compilation;
-- zlib-ng library latest version;
+- zlib library latest version;
 - Rootless master process - unprivileged container;
 - Async I/O threads module;
 - "Distroless" image - shell removed from the image;
@@ -55,7 +55,7 @@ https://boringssl.googlesource.com/boringssl
 - Slimmed version by Docker Slim tool;
 - Scanned efficiency result with Dive tool;
 - Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Grype, Dockle and Syft;
-- Anonymous signature - removed "Server" header ("banner"):<br>
+- Prioritize ChaCha cipher patch and anonymous signature - removed "Server" header ("banner"):<br>
 https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
 # Note:

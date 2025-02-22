@@ -1,10 +1,12 @@
 ARG BASE_VERSION=3.21.2
 ARG BASE_HASH=56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH} AS builder
-ARG OPENSSL_BRANCH=0.20250212.0
-ARG APP_BRANCH=release-1.27.4
+ARG OPENSSL_VERSION=openssl-3.4.1
+ARG APP_VERSION=release-1.27.4
+ARG NJS_VERSION=0.8.9
+
 RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
-&& addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
+&& set -ex && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
 && apk -U upgrade && apk add --no-cache \
     openssl \
     pcre \
@@ -33,7 +35,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     ncurses-libs \
     gd-dev \
     brotli-libs \
-&& cd /tmp && git clone -b "${APP_BRANCH}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
+&& cd /tmp && git clone -b "${APP_VERSION}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
 && sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
@@ -43,13 +45,11 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && sed -i -e 's@r->headers_out.server == NULL@0@g' /tmp/nginx/src/http/v3/ngx_http_v3_filter_module.c \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
-&& git clone --depth=1 --recursive --shallow-submodules https://github.com/nginx/njs && git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
-&& git clone -b ${OPENSSL_BRANCH} https://boringssl.googlesource.com/boringssl && cd /tmp/boringssl \
-&& mkdir -p /tmp/boringssl/build && cmake -DBUILD_SHARED_LIBS=1 && make -j$(getconf _NPROCESSORS_ONLN) && cd /tmp/njs && ./configure && make -j "${NB_CORES}" && make clean \
-&& mkdir -p /tmp/boringssl/.openssl/lib && cd /tmp/boringssl/.openssl && ln -s ../include include \
-&& cp /tmp/boringssl/crypto/libcrypto.so /tmp/boringssl/.openssl/lib \
-&& cp /tmp/boringssl/ssl/libssl.so /tmp/boringssl/.openssl/lib && cp /tmp/boringssl/ssl/libssl.so /usr/lib/ \
-&& cp /tmp/boringssl/crypto/libcrypto.so /usr/lib/ \
+&& sed -i -e 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/nginx/src/event/ngx_event_openssl.c \
+&& git clone --recursive --depth 1 --single-branch -b ${OPENSSL_VERSION} https://github.com/openssl/openssl \
+&& git clone --depth=1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
+&& git clone --depth=1 --recursive --shallow-submodules --single-branch -b ${NJS_VERSION} https://github.com/nginx/njs \
+&& cd /tmp/njs && ./configure && make -j "${NB_CORES}" && make clean \
 && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
     --with-debug \
     --prefix=/etc/freenginx \
@@ -64,8 +64,10 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --http-client-body-temp-path=/var/cache/freenginx/client_temp \
     --http-proxy-temp-path=/var/cache/freenginx/proxy_temp \
     --http-fastcgi-temp-path=/var/cache/freenginx/fastcgi_temp \
-    --with-cc-opt="-O3 -g -m64 -march=westmere -falign-functions=32 -flto -funsafe-math-optimizations -fstack-protector-strong --param=ssp-buffer-size=4 -Wimplicit-fallthrough=0 -Wno-error=strict-aliasing -Wformat -Wno-error=pointer-sign -Wno-implicit-function-declaration -Wno-int-conversion -Wno-error=unused-result -Wno-unused-result -fcode-hoisting -Werror=format-security -Wno-deprecated-declarations -Wp,-D_FORTIFY_SOURCE=2 -DTCP_FASTOPEN=23 -fPIC -I/tmp/boringssl/include" \
-    --with-ld-opt="-L/tmp/boringssl/ssl -L/tmp/boringssl/crypto" \
+    --with-openssl="/tmp/openssl" \
+    --with-openssl-opt=enable-ec_nistp_64_gcc_128 \
+    --with-cc-opt="-O3 -g -m64 -march=westmere -falign-functions=32 -flto -funsafe-math-optimizations -fstack-protector-strong --param=ssp-buffer-size=4 -Wimplicit-fallthrough=0 -Wno-error=strict-aliasing -Wformat -Wno-error=pointer-sign -Wno-implicit-function-declaration -Wno-int-conversion -Wno-error=unused-result -Wno-unused-result -fcode-hoisting -Werror=format-security -Wno-deprecated-declarations -Wp,-D_FORTIFY_SOURCE=2 -DTCP_FASTOPEN=23 -fPIC" \
+    --with-ld-opt="-lrt -ltalloc -Wl,-Bsymbolic-functions -lpcre -Wl,-z,relro -Wl,-z,now -Wl,--as-needed -pie" \
     --with-compat \
     --with-file-aio \
     --with-pcre-jit \
@@ -106,21 +108,17 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
 RUN addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
 && apk -U upgrade && apk add --no-cache \
-    libstdc++ \
-    libgcc \
     pcre \
     tini \
     brotli-libs \
     libxslt \
     ca-certificates \
-&& update-ca-certificates && apk --purge del ca-certificates apk-tools \
+&& update-ca-certificates && apk del --purge ca-certificates apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
 
 COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder /etc/freenginx /etc/freenginx
 COPY --from=builder /var/cache/freenginx /var/cache/freenginx
-COPY --from=builder /tmp/boringssl/ssl/libssl.so /usr/lib/libssl.so
-COPY --from=builder /tmp/boringssl/crypto/libcrypto.so /usr/lib/libcrypto.so
 COPY ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY ./default.conf /etc/freenginx/conf.d/default.conf
 
