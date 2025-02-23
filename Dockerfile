@@ -149,11 +149,11 @@ RUN set -ex && addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G
 && apk del --purge apk-tools \
 && rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
 
-COPY --from=builder /usr/sbin/freenginx /usr/sbin/freenginx
-COPY --from=builder /etc/freenginx /etc/freenginx
-COPY --from=builder /var/cache/freenginx /var/cache/freenginx
-COPY ./freenginx.conf /etc/freenginx/freenginx.conf
-COPY ./default.conf /etc/freenginx/conf.d/default.conf
+COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
+COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
+COPY --from=builder --chown=freenginx:freenginx /var/cache/freenginx /var/cache/freenginx
+COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
+COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
 
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
