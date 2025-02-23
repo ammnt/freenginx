@@ -37,6 +37,7 @@ services:
 # Description:
 
 - Based on latest version of Alpine Linux - low size (~5 MB);
+- Multi-stage building with statically linked binary;
 - OpenSSL with HTTP/3 and QUIC support:<br>
 https://github.com/openssl/openssl
 - HTTP/2 with ALPN support;
@@ -60,4 +61,4 @@ https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
 # Note:
 
-Feel free to <a href="https://github.com/ammnt/freenginx/issues/new">contact me</a> with more security improvements🙋
+Feel free to <a href="https://github.com/ammnt/freenginx/issues/new">contact me</a> with more improvements🙋
