@@ -53,7 +53,6 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && git clone --depth 1 --recursive --shallow-submodules --single-branch -b ${NJS_VERSION} https://github.com/nginx/njs \
 && cd /tmp/njs && ./configure && make -j "${NB_CORES}" && make clean \
 && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
-    --with-debug \
     --prefix=/etc/freenginx \
     --sbin-path=/usr/sbin/freenginx \
     --user=freenginx \
@@ -131,7 +130,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --without-mail_smtp_module \
     --add-module=/tmp/njs/nginx \
     --add-module=/tmp/ngx_brotli \
-&& make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx* \
+&& make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx
 
