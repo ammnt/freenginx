@@ -70,6 +70,7 @@ jobs:
         env:
           DOCKER_CONTENT_TRUST: 1
           DOCKER_BUILD_RECORD_UPLOAD: false
+          DOCKER_BUILDKIT: 1
         with:
           provenance: false
           context: .

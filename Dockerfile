@@ -98,6 +98,7 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --with-ld-opt="-Wl,-z,now" \
     --with-ld-opt="-pie" \
     --with-ld-opt="-Wl,--gc-sections" \
+    --with-file-aio \
     --with-compat \
     --with-pcre-jit \
     --with-threads \
