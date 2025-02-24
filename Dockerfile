@@ -133,23 +133,25 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --add-module=/tmp/ngx_brotli \
 && make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
-&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx
+&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx && touch /tmp/error.log
 
-FROM docker.io/library/alpine:${BASE_VERSION}@sha256:${BASE_HASH}
-RUN set -ex && addgroup -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
-&& apk -U upgrade && apk add --no-cache \
-    pcre \
-    tini \
-    brotli-libs \
-    libxslt \
-&& apk del --purge apk-tools \
-&& rm -rf /tmp/* /var/cache/apk/ /var/cache/misc /root/.gnupg /root/.cache /root/go /etc/apk
-
+FROM scratch
+COPY --from=builder /etc/passwd /etc/passwd
+COPY --from=builder /etc/group /etc/group
+COPY --from=builder /sbin/tini /sbin/tini
 COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
+COPY --from=builder --chown=freenginx:freenginx /tmp/error.log /tmp/error.log
 COPY --from=builder --chown=freenginx:freenginx /var/cache/freenginx /var/cache/freenginx
 COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
+COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/
+COPY --from=builder /usr/lib/libbrotlienc.so.1 \
+                    /usr/lib/libpcre.so.1 \
+                    /usr/lib/libz.so.1 \
+                    /usr/lib/libxml2.so.2 \
+                    /usr/lib/libbrotlicommon.so.1 \
+                    /usr/lib/liblzma.so.5 /usr/lib/
 
 ENTRYPOINT [ "/sbin/tini", "--" ]
 
