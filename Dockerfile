@@ -5,37 +5,23 @@ ARG OPENSSL_VERSION=openssl-3.4.1
 ARG APP_VERSION=release-1.27.4
 ARG NJS_VERSION=0.8.9
 
-RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
-&& set -ex && addgroup --gid 101 -S freenginx && adduser -S freenginx --uid 101 -s /sbin/nologin -G freenginx --no-create-home \
+RUN set -ex && NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
+&& set -ex && addgroup --gid 101 -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
 && apk -U upgrade && apk add --no-cache \
-    openssl \
     pcre \
-    libgcc \
-    libstdc++ \
-    g++ \
+    gcc \
     make \
-    build-base \
-    linux-headers \
     ca-certificates \
-    automake \
-    autoconf \
     git \
-    talloc \
     talloc-dev \
-    libtool \
     pcre-dev \
-    binutils \
-    gnupg \
-    cmake \
-    go \
-    libxslt \
     libxslt-dev \
     tini \
-    musl-dev \
-    ncurses-libs \
     gd-dev \
     brotli-libs \
+    build-base \
     ca-certificates \
+    linux-headers \
 && update-ca-certificates && cd /tmp \
 && git clone --depth 1 --recursive --single-branch -b "${APP_VERSION}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
 && sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
@@ -67,9 +53,13 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --http-fastcgi-temp-path=/var/cache/freenginx/fastcgi_temp \
     --with-openssl="/tmp/openssl" \
     --with-openssl-opt=enable-ec_nistp_64_gcc_128 \
+    --with-openssl-opt=no-ssl2 \
+    --with-openssl-opt=no-ssl3 \
+    --with-openssl-opt=no-shared \
+    --with-openssl-opt=no-weak-ssl-ciphers \
     --with-cc-opt="-O2" \
     --with-cc-opt="-m64" \
-    --with-cc-opt="-march=native" \
+    --with-cc-opt="-march=x86-64" \
     --with-cc-opt="-falign-functions=32" \
     --with-cc-opt="-flto" \
     --with-cc-opt="-fstack-protector-strong" \
@@ -98,7 +88,6 @@ RUN NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --with-ld-opt="-Wl,-z,now" \
     --with-ld-opt="-pie" \
     --with-ld-opt="-Wl,--gc-sections" \
-    --with-file-aio \
     --with-compat \
     --with-pcre-jit \
     --with-threads \
