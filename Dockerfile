@@ -5,7 +5,7 @@ ARG OPENSSL_VERSION=openssl-3.4.1
 ARG APP_VERSION=release-1.27.4
 ARG NJS_VERSION=0.8.9
 
-RUN set -ex && NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
+RUN set -ex \
 && set -ex && addgroup --gid 101 -S freenginx && adduser -S freenginx -s /sbin/nologin -G freenginx --uid 101 --no-create-home \
 && apk -U upgrade && apk add --no-cache \
     pcre \
@@ -37,7 +37,7 @@ RUN set -ex && NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
 && git clone --depth 1 --recursive --single-branch -b ${OPENSSL_VERSION} https://github.com/openssl/openssl \
 && git clone --depth 1 --recursive --shallow-submodules https://github.com/google/ngx_brotli \
 && git clone --depth 1 --recursive --shallow-submodules --single-branch -b ${NJS_VERSION} https://github.com/nginx/njs \
-&& cd /tmp/njs && ./configure && make -j "${NB_CORES}" && make clean \
+&& cd /tmp/njs && ./configure && make -j $(nproc) && make clean \
 && mkdir /var/cache/freenginx && cd /tmp/nginx && ./auto/configure \
     --prefix=/etc/freenginx \
     --sbin-path=/usr/sbin/freenginx \
@@ -120,7 +120,7 @@ RUN set -ex && NB_CORES="${BUILD_CORES-$(getconf _NPROCESSORS_CONF)}" \
     --without-mail_smtp_module \
     --add-module=/tmp/njs/nginx \
     --add-module=/tmp/ngx_brotli \
-&& make -j "${NB_CORES}" && make install && make clean && strip /usr/sbin/freenginx \
+&& make -j $(nproc) && make install && make clean && strip /usr/sbin/freenginx \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx && touch /tmp/error.log
 
