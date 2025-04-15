@@ -1,7 +1,7 @@
 # Distroless FreeNGINX with HTTP/3 and QUIC support🚀
 
 [![Build and push image📦](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
-![version](https://img.shields.io/badge/version-1.27.5-blue)
+![version](https://img.shields.io/badge/version-1.27.6-blue)
 [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues)
 ![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
 ![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
