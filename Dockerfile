@@ -130,7 +130,7 @@ RUN set -ex \
     --add-module=/tmp/ngx_brotli \
 && make -j $(nproc) && make install && make clean && strip /usr/sbin/freenginx \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
-&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx && touch /tmp/error.log
+&& chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx && rm -rf /tmp/* && touch /tmp/error.log
 
 FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
