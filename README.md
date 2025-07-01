@@ -37,6 +37,8 @@ services:
 # Description:
 
 - Base image: Alpine Linux (only ~5 MB);
+- Hardened image (secure, minimal and production-ready) - recommended to use in Rootless mode:
+https://docs.docker.com/engine/security/rootless/
 - Runtime on scratch image - with zero bloat;
 - Multi-stage building with statically linked binary;
 - OpenSSL with HTTP/3 and QUIC support:<br>
@@ -56,7 +58,7 @@ https://github.com/openssl/openssl
 - No excess ENTRYPOINT in the image;
 - Slimmed version by Docker Slim tool;
 - Image efficiency score 100% according to Dive utility;
-- Scanned by vulnerability scanners: GitHub, Docker Scout, Snyk, Grype, Dockle and Syft;
+- Scanned by vulnerability scanners: GitHub CodeQL, Docker Scout, Snyk, Grype, Dockle and Syft;
 - Prioritize ChaCha cipher patch and anonymous signature - removed "Server" header ("banner"):<br>
 https://github.com/ammnt/freenginx/blob/main/Dockerfile
 
