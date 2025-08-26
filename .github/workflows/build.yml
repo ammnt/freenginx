@@ -21,7 +21,7 @@ jobs:
       id-token: write
       security-events: write
       attestations: write
-
+      actions: write
     steps:
       - name: Checkout repository🧱
         uses: actions/checkout@v5.0.0
