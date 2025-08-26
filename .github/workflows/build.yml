@@ -281,7 +281,7 @@ jobs:
           tar -czf ${{ env.APP_VERSION }}.tar.gz --exclude='.git' .
 
       - name: Create release in the repository🎁
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.APP_VERSION }}
           name: ${{ env.APP_VERSION }}
