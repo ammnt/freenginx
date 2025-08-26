@@ -10,7 +10,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  APP_VERSION: 1.29.0
 
 jobs:
   build:
@@ -24,6 +23,16 @@ jobs:
       attestations: write
 
     steps:
+      - name: Load .env variables☁️
+        run: |
+          set -x
+          while IFS= read -r line; do
+            if [[ ! "$line" =~ ^# ]] && [[ -n "$line" ]]; then
+              echo "$line" >> $GITHUB_ENV
+            fi
+          done < .env
+          printenv | sort -n
+
       - name: Checkout repository🧱
         uses: actions/checkout@v4.2.2
 
@@ -74,12 +83,21 @@ jobs:
         with:
           provenance: false
           context: .
+          file: ./Dockerfile.template
           platforms: linux/amd64
           load: ${{ github.event_name != 'pull_request' }}
           tags: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            BASE_VERSION=${{ env.BASE_VERSION }}
+            BASE_HASH=${{ env.BASE_HASH }}
+            OPENSSL_VERSION=${{ env.OPENSSL_VERSION }}
+            APP_VERSION=${{ env.APP_VERSION }}
+            NJS_VERSION=${{ env.NJS_VERSION }}
+            PCRE_VERSION=${{ env.PCRE_VERSION }}
+            ZLIB_VERSION=${{ env.ZLIB_VERSION }}
 
       - name: Slim the Docker image🚀
         id: slim
@@ -153,7 +171,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          args: --file=Dockerfile
+          args: --file=Dockerfile.template
 
       - name: Upload Snyk report📊
         uses: actions/upload-artifact@v4.6.2
@@ -195,7 +213,6 @@ jobs:
 
       - name: Test the Docker image🧪
         run: |
-          docker images | grep freenginx
           docker run -d --name freenginx --rm -p 127.0.0.1:8080:8080/tcp ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           curl -v http://127.0.0.1:8080 || exit 1
 
@@ -219,6 +236,7 @@ jobs:
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ghcr.io/ammnt/freenginx:latest
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ammnt/freenginx:${{ env.APP_VERSION }}
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ammnt/freenginx:latest
+          docker images | grep freenginx
           docker push ghcr.io/ammnt/freenginx --all-tags
           docker push ammnt/freenginx --all-tags
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} | sed -e "s|ghcr.io/ammnt/freenginx@||g" | sed -e "s|ammnt/freenginx@||g")
@@ -252,12 +270,24 @@ jobs:
           cosign verify --key cosign.pub ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           cosign verify --key cosign.pub ammnt/freenginx:${{ env.APP_VERSION }}
 
-      # - name: Add reports to final commit✅
-      #   if: ${{ github.event_name != 'pull_request' }}
-      #   run: |
-      #     git config --global user.name "ammnt"
-      #     git config --global user.email "admin@msftcnsi.com"
-      #     cd ${{ github.workspace }}
-      #     git add scout.report.json trivy.report.json grype.report.json dockle.report.json slim.report.json snyk.sarif syft.report.json
-      #     git commit -m "added: build reports to the final commit"
-      #     git push
+      - name: Create release tag in the repository✅
+        run: |
+          git config --global user.name "ammnt"
+          git config --global user.email "admin@msftcnsi.com"
+          git tag ${{ env.APP_VERSION }}
+          git push origin --tags
+          git show-ref --tags
+          zip -r ${{ env.APP_VERSION }}.zip . -x './.git/*'
+          tar -czf ${{ env.APP_VERSION }}.tar.gz --exclude='.git' .
+
+      - name: Create release in the repository🎁
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.APP_VERSION }}
+          name: ${{ env.APP_VERSION }}
+          body: Automated release created by GitHub Actions - ${{ env.APP_VERSION }}
+          files: |
+            ${{ env.APP_VERSION }}.zip
+            ${{ env.APP_VERSION }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -1,7 +1,7 @@
 # Distroless FreeNGINX with HTTP/3 and QUIC support🚀
 
 [![Build and push image📦](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
-![version](https://img.shields.io/badge/version-1.29.0-blue)
+![version)](https://img.shields.io/github/v/release/ammnt/freenginx)
 [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues)
 ![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
 ![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
@@ -67,7 +67,7 @@ https://github.com/openssl/openssl
 - Image efficiency score 100% according to Dive utility;
 - Scanned by vulnerability scanners: GitHub CodeQL, Docker Scout, Snyk, Grype, Dockle and Syft;
 - Prioritize ChaCha cipher patch and anonymous signature - removed "Server" header ("banner"):<br>
-https://github.com/ammnt/freenginx/blob/main/Dockerfile
+https://github.com/ammnt/freenginx/blob/main/Dockerfile.template
 
 # Note:
 
