@@ -28,15 +28,11 @@ jobs:
 
       - name: Load .env variables☁️
         run: |
-          set -x
-          ls -lash
-          pwd
           while IFS= read -r line; do
             if [[ ! "$line" =~ ^# ]] && [[ -n "$line" ]]; then
               echo "$line" >> $GITHUB_ENV
             fi
           done < .env
-          printenv | sort -n
 
       - name: Install cosign🔒
         uses: sigstore/cosign-installer@v3.9.2
