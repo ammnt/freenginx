@@ -268,25 +268,3 @@ jobs:
           docker pull ammnt/freenginx:${{ env.APP_VERSION }}
           cosign verify --key cosign.pub ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           cosign verify --key cosign.pub ammnt/freenginx:${{ env.APP_VERSION }}
-
-      - name: Create release tag in the repository✅
-        run: |
-          git config --global user.name "ammnt"
-          git config --global user.email "admin@msftcnsi.com"
-          git tag ${{ env.APP_VERSION }}
-          git push origin --tags
-          git show-ref --tags
-          zip -r ${{ env.APP_VERSION }}.zip . -x './.git/*'
-          tar -czf ${{ env.APP_VERSION }}.tar.gz --exclude='.git' .
-
-      - name: Create release in the repository🎁
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ env.APP_VERSION }}
-          name: ${{ env.APP_VERSION }}
-          body: Automated release created by GitHub Actions - ${{ env.APP_VERSION }}
-          files: |
-            ${{ env.APP_VERSION }}.zip
-            ${{ env.APP_VERSION }}.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
