@@ -26,11 +26,6 @@ jobs:
       - name: Checkout repository🧱
         uses: actions/checkout@v5.0.0
 
-      - name: Install cosign🔒
-        uses: sigstore/cosign-installer@v3.9.2
-        with:
-          cosign-release: "v2.5.3"
-
       - name: Load .env variables☁️
         run: |
           set -x
@@ -42,6 +37,11 @@ jobs:
             fi
           done < .env
           printenv | sort -n
+
+      - name: Install cosign🔒
+        uses: sigstore/cosign-installer@v3.9.2
+        with:
+          cosign-release: "v2.5.3"
 
       - name: Setup Docker buildx🛠️
         uses: docker/setup-buildx-action@v3.11.1
