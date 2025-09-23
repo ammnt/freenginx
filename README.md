@@ -8,7 +8,7 @@
 ![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
 ![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
 
-> **Production-ready, security-focused FreeNGINX container with HTTP/3, QUIC and PQC support.**
+> **Production-ready, security-focused FreeNGINX image with HTTP/3, QUIC and PQC support.**
 
 > [!IMPORTANT]
 > QuicTLS is now deprecated. I use OpenSSL, since this library natively supports OCSP, PQC and QUIC⚠️
