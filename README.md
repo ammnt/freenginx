@@ -3,7 +3,7 @@
 [![Build and Push](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
 ![Version](https://img.shields.io/github/v/release/ammnt/freenginx)
 ![Security](https://img.shields.io/badge/security-hardened-brightgreen)
-![Size](https://img.shields.io/badge/size-ultra--lightweight-blue)
+![Size](https://img.shields.io/badge/size-distroless-blue)
 [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues)
 ![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
 ![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
@@ -14,7 +14,7 @@
 > QuicTLS is now deprecated. I use OpenSSL, since this library natively supports OCSP, PQC and QUIC⚠️
 
 > [!TIP]
-> You can find an example configuration file in the repository for successfully configuring HTTP3 and PQC💡
+> You can find an example configuration file in the repository for successfully configuring HTTP/3 and PQC💡
 
 ## 🌐 Image Variants
 
@@ -39,6 +39,9 @@ docker run -d \
 
 ## 🔧 Advanced Configuration
 
+## 🎯 Recommended to use in Rootless mode:<br>
+https://docs.docker.com/engine/security/rootless/
+
 ### Docker Compose (Recommended)
 ```yaml
 services:
@@ -60,6 +63,7 @@ services:
       - "./conf:/etc/freenginx:ro"
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
+...
 ```
 ## 🔥 Why Choose This Image?
 
@@ -100,16 +104,15 @@ services:
 - **PCRE2 with JIT** compilation for regex performance
 - **Thread pool support** for async I/O operations
 - **TCP Fast Open** and **SSL session resumption**
+- **Graceful shutdown** - SIGQUIT handling for proper connection draining
 
 ### **Quality Metrics**
-- **ChaCha20 prioritization** - Custom patch for modern cipher preference
+- **ChaCha20 prioritization** - custom patch for modern cipher preference
 - **Anonymous signature** - stripped version information from binaries
 - **Image efficiency** - perfect score in Dive analysis (100%)
 - **Comprehensive OCI labels** - standardized metadata and annotations
 - **No excess ENTRYPOINT** - no unnecessary wrapper scripts or bloat
-
-## 🎯 Recommended to use in Rootless mode:<br>
-https://docs.docker.com/engine/security/rootless/
+- **Readiness Probes** - configurable via Docker HEALTHCHECK parameters
 
 ## 🤝 Contributing & Support
 
@@ -121,4 +124,4 @@ Found an issue or have an improvement?
 
 ## 📄 License
 
-This project is open source and maintained with ❤️ by [ammnt](https://github.com/ammnt).
+This project is open source and maintained with ❤️ by [ammnt](https://msftcnsi.com).
