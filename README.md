@@ -64,8 +64,6 @@ services:
       - seccomp=./freenginx-seccomp.json
     volumes:
       - "./conf:/etc/freenginx:ro"
-      - "/etc/timezone:/etc/timezone:ro"
-      - "/etc/localtime:/etc/localtime:ro"
 ...
 ```
 ## 🔥 Why Choose This Image?
