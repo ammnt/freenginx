@@ -51,8 +51,8 @@ RUN set -ex \
     --sbin-path=/usr/sbin/freenginx \
     --user=freenginx \
     --group=freenginx \
-    --http-log-path=/tmp/access.log \
-    --error-log-path=/tmp/error.log \
+    --http-log-path=/dev/stdout \
+    --error-log-path=/dev/stderr \
     --conf-path=/etc/freenginx/freenginx.conf \
     --pid-path=/tmp/freenginx.pid \
     --lock-path=/tmp/freenginx.lock \
@@ -141,15 +141,15 @@ RUN set -ex \
 && chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
 && ldd /usr/sbin/freenginx || true \
-&& upx --best --lzma /usr/sbin/freenginx && rm -rf /tmp/* && touch /tmp/error.log
+&& upx --best --lzma /usr/sbin/freenginx && rm -rf /tmp/*
 
 FROM scratch
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 COPY --from=builder /sbin/tini /sbin/tini
+COPY --from=builder /tmp /tmp
 COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
-COPY --from=builder --chown=freenginx:freenginx /tmp/error.log /tmp/error.log
 COPY --from=builder --chown=freenginx:freenginx /var/cache/freenginx /var/cache/freenginx
 COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
