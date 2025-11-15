@@ -7,7 +7,7 @@ ARG PCRE_VERSION
 ARG ZLIB_VERSION
 ARG BUILD_DATE
 
-RUN set -ex \
+RUN set -e \
 && addgroup --system --gid 101 freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid 101 --no-create-home freenginx \
 && apk -U upgrade && apk add --no-cache \
     gcc \
@@ -23,7 +23,11 @@ RUN set -ex \
     perl \
     cmake \
 && update-ca-certificates && cd /tmp \
-&& git clone --depth 1 --recursive --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
+&& git clone --depth 1 --recursive -j8 --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
+&& git clone --depth 1 --recursive -j8 --single-branch -b "openssl-${OPENSSL_VERSION}" https://github.com/openssl/openssl \
+&& git clone --depth 1 --recursive -j8 --single-branch -b "pcre2-${PCRE_VERSION}" https://github.com/PCRE2Project/pcre2 \
+&& git clone --depth 1 --recursive -j8 --single-branch -b "${ZLIB_VERSION}" https://github.com/zlib-ng/zlib-ng.git \
+&& git clone --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli \
 && sed -i -e 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
 && sed -i -e 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
@@ -34,18 +38,14 @@ RUN set -ex \
 && sed -i -e 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
 && sed -i -e 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
 && sed -i -e 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/nginx/src/event/ngx_event_openssl.c \
-&& git clone --recursive --depth 1 --single-branch -b "openssl-${OPENSSL_VERSION}" https://github.com/openssl/openssl \
-&& git clone --recursive --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli \
-&& cd ngx_brotli/deps/brotli && mkdir out && cd out \
+&& cd /tmp/ngx_brotli/deps/brotli && mkdir out && cd out \
 && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF \
 -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" \
 -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" \
 -DCMAKE_INSTALL_PREFIX=./installed .. \
-&& cmake --build . --config Release --target brotlienc && cd /tmp \
-&& git clone --depth 1 --recursive --single-branch -b "pcre2-${PCRE_VERSION}" https://github.com/PCRE2Project/pcre2 \
-&& git clone --depth 1 --recursive --single-branch -b "${ZLIB_VERSION}" https://github.com/zlib-ng/zlib-ng.git \
-&& sed -i "s/compat=0/compat=1/" /tmp/zlib-ng/configure && cd zlib-ng && ./configure --zlib-compat \
-&& make && make install && mkdir /var/cache/freenginx && cd /tmp/nginx \
+&& cmake --build . --config Release --target brotlienc \
+&& sed -i "s/compat=0/compat=1/" /tmp/zlib-ng/configure && cd /tmp/zlib-ng && ./configure --zlib-compat \
+&& make && make install && cd /tmp/nginx \
 && ./auto/configure \
     --prefix=/etc/freenginx \
     --sbin-path=/usr/sbin/freenginx \
@@ -56,9 +56,9 @@ RUN set -ex \
     --conf-path=/etc/freenginx/freenginx.conf \
     --pid-path=/tmp/freenginx.pid \
     --lock-path=/tmp/freenginx.lock \
-    --http-client-body-temp-path=/var/cache/freenginx/client_temp \
-    --http-proxy-temp-path=/var/cache/freenginx/proxy_temp \
-    --http-fastcgi-temp-path=/var/cache/freenginx/fastcgi_temp \
+    --http-client-body-temp-path=/tmp/client_temp \
+    --http-proxy-temp-path=/tmp/proxy_temp \
+    --http-fastcgi-temp-path=/tmp/fastcgi_temp \
     --with-openssl="/tmp/openssl" \
     --with-openssl-opt=enable-ec_nistp_64_gcc_128 \
     --with-openssl-opt=no-ssl2 \
@@ -138,9 +138,7 @@ RUN set -ex \
     --without-mail_smtp_module \
     --add-module=/tmp/ngx_brotli \
 && make -j $(nproc) && make install && make clean && strip --strip-all /usr/sbin/freenginx \
-&& chown -R freenginx:freenginx /var/cache/freenginx && chmod -R g+w /var/cache/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
-&& ldd /usr/sbin/freenginx || true \
 && upx --best --lzma /usr/sbin/freenginx && rm -rf /tmp/*
 
 FROM scratch
@@ -150,7 +148,6 @@ COPY --from=builder /sbin/tini /sbin/tini
 COPY --from=builder /tmp /tmp
 COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
-COPY --from=builder --chown=freenginx:freenginx /var/cache/freenginx /var/cache/freenginx
 COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
 COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
 COPY --from=builder /lib/ld-musl-x86_64.so.1 /lib/
