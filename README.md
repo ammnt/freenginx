@@ -2,8 +2,8 @@
 
 [![Build and Push](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
 ![Version](https://img.shields.io/github/v/release/ammnt/freenginx)
-![Security](https://img.shields.io/badge/security-hardened-brightgreen)
-![Size](https://img.shields.io/badge/size-distroless-blue)
+[![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers)
+![Feature](https://img.shields.io/badge/feature-distroless-blue)
 [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues)
 ![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
 ![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
