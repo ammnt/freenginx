@@ -72,6 +72,7 @@ RUN set -e \
     --with-cc-opt="-static -static-libgcc" \
     --with-ld-opt="-static" \
     --with-cc-opt="-O2" \
+    --with-cc-opt="-march=native" \
     --with-cc-opt="-fhardened" \
     --with-cc-opt="-D_FORTIFY_SOURCE=3" \
     --with-cc-opt="-D_GLIBCXX_ASSERTIONS" \
@@ -118,7 +119,6 @@ RUN set -e \
     --without-mail_smtp_module \
     --add-module="/tmp/ngx_brotli" \
 && make -j $(nproc) && make install && make clean && strip --strip-all /usr/sbin/freenginx \
-&& file /usr/sbin/freenginx && ldd /usr/sbin/freenginx || true \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
 && upx --best --lzma /usr/sbin/freenginx && rm -rf /tmp/*
 
