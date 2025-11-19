@@ -13,6 +13,7 @@ env:
   DIVE_VERSION: "0.13.1"
   GRYPE_VERSION: "0.103.0"
   SYFT_VERSION: "1.38.0"
+  ARCH_PLATFORMS: linux/amd64
 
 jobs:
   build:
@@ -72,7 +73,7 @@ jobs:
           provenance: false
           context: .
           file: ./Dockerfile.template
-          platforms: linux/amd64
+          platforms: ${{ env.ARCH_PLATFORMS }}
           tags: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -93,7 +94,7 @@ jobs:
             --tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             --http-probe=false \
             --continue-after=5
-          docker run -d --rm -p 127.0.0.1:8080:8080/tcp ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
+          docker run -d --rm -p 127.0.0.1:8080:8080/tcp ghcr.io/ammnt/afreenginxngie:${{ env.APP_VERSION }}
           sleep 10 && docker ps -a
           curl -sSI http://127.0.0.1:8080 || exit 1
 
@@ -110,8 +111,9 @@ jobs:
         with:
           command: cves,sbom
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          sarif-file: ${{ github.workspace }}/scout.report.json
+          sarif-file: ${{ github.workspace }}/scout.sarif
           write-comment: true
+          summary: true
           github-token: ${{ secrets.GH_TOKEN }}
 
       - name: Analyze image with Trivy💊
@@ -119,8 +121,8 @@ jobs:
         with:
           image-ref: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           scan-type: image
-          format: "json"
-          output: "${{ github.workspace }}/trivy.report.json"
+          format: "sarif"
+          output: "${{ github.workspace }}/trivy.sarif"
           severity: "MEDIUM,HIGH,CRITICAL"
           scanners: "vuln"
           github-pat: ${{ secrets.GH_TOKEN }}
@@ -131,25 +133,27 @@ jobs:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           fail-build: false
           severity-cutoff: critical
-          output-format: json
+          output-format: sarif
           grype-version: v${{ env.GRYPE_VERSION }}
-          output-file: ${{ github.workspace }}/grype.report.json
+          output-file: ${{ github.workspace }}/grype.sarif
 
       - name: Analyze image with Snyk💊
         uses: snyk/actions/docker@master
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          sarif: false
-          json: true
+          sarif: true
+          json: false
+          args: --sarif-file-output=${{ github.workspace }}/snyk.sarif
 
       - name: Analyze image with Dockle💊
         uses: goodwithtech/dockle-action@main
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          format: "json"
-          output: "dockle.report.json"
+          format: "sarif"
+          output: "dockle.sarif"
           exit-code: "1"
           exit-level: "warn"
           ignore: "CIS-DI-0010"
@@ -159,17 +163,19 @@ jobs:
         with:
           syft-version: v${{ env.SYFT_VERSION }}
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          format: spdx-json
-          output-file: ${{ github.workspace }}/syft.report.json
-          upload-artifact: false
+          format: cyclonedx-json
+          upload-artifact: true
 
       - name: Upload all reports📊
-        uses: actions/upload-artifact@v5.0.0
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          name: security-reports
-          path: |
-            ${{ github.workspace }}/*.report.json
-            ${{ github.workspace }}/snyk.json
+          sarif_file: |
+            ${{ github.workspace }}/scout.sarif
+            ${{ github.workspace }}/trivy.sarif
+            ${{ github.workspace }}/grype.sarif
+            ${{ github.workspace }}/snyk.sarif
+            ${{ github.workspace }}/dockle.sarif
+          category: container-security-scan
 
       - name: Push the Docker images to registries💾
         run: |
@@ -178,7 +184,7 @@ jobs:
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ammnt/freenginx:latest
           docker push ghcr.io/ammnt/freenginx --all-tags
           docker push ammnt/freenginx --all-tags
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} | \
+          DIGEST=$(docker inspect -f='{{index .RepoDigests 0}}' ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             | cut -d'@' -f2)
           echo "DIGEST=$DIGEST" >> $GITHUB_ENV
 
