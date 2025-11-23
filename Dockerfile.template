@@ -120,7 +120,7 @@ RUN set -e \
     --without-mail_imap_module \
     --without-mail_smtp_module \
     --add-module="/tmp/ngx_brotli" \
-&& make -s -j $(nproc) && make -s install && make -s clean \
+&& make -s -j "$(nproc)" && make -s install && make -s clean \
 && strip --strip-all /usr/sbin/freenginx \
 && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
 && file /usr/sbin/freenginx && ldd /usr/sbin/freenginx || true \
