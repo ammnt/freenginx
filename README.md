@@ -1,6 +1,6 @@
 # 🚀 Distroless FreeNGINX: Hardened & Optimized image
 
-[![Build and Push](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
+[![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
 ![Version](https://img.shields.io/github/v/release/ammnt/freenginx)
 [![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers)
 ![Feature](https://img.shields.io/badge/feature-distroless-blue)
