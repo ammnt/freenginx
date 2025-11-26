@@ -170,11 +170,10 @@ RUN set -e \
     # Verify binary and dependencies
     && file /usr/sbin/freenginx && ldd /usr/sbin/freenginx || true \
     # Compress binary with UPX (minimal memory overhead)
-    && upx --best --lzma /usr/sbin/freenginx \
+    && upx --best --lzma /usr/sbin/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
     && grep -E "(root|freenginx)" /etc/group > /tmp/group \
-    && grep -E "(root|freenginx)" /etc/shadow > /tmp/shadow \
-    && rm -rf /tmp/*
+    && grep -E "(root|freenginx)" /etc/shadow > /tmp/shadow
 
 # Final distroless image
 FROM scratch
