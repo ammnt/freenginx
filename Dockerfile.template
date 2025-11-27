@@ -6,13 +6,14 @@ ARG OPENSSL_VERSION
 ARG APP_VERSION
 ARG PCRE_VERSION
 ARG ZLIB_VERSION
-ARG BUILD_DATE
+ARG UID
+ARG GID
 
 WORKDIR /tmp
 # System setup and dependency installation
 RUN set -e \
     # Create non-root user for security (freenginx:freenginx)
-    && addgroup --system --gid 101 freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid 101 --no-create-home freenginx \
+    && addgroup --system --gid "${GID}" freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid "${UID}" --no-create-home freenginx \
     # Update system and install build dependencies
     && apk -U upgrade && apk add --no-cache \
         gcc=14.2.0-r6 \
@@ -166,7 +167,7 @@ RUN set -e \
     # Security hardening: strip debug symbols and compress binary
     && strip --strip-all /usr/sbin/freenginx \
     # Set proper permissions
-    && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
+    && chown -R "${UID}:${GID}" /etc/freenginx && chmod -R g+w /etc/freenginx \
     # Verify binary and dependencies
     && file /usr/sbin/freenginx && ldd /usr/sbin/freenginx || true \
     # Compress binary with UPX (minimal memory overhead)
@@ -177,16 +178,20 @@ RUN set -e \
 
 # Final distroless image
 FROM scratch
+ARG APP_VERSION
+ARG BUILD_DATE
+ARG UID
+ARG GID
 
 # Copy minimal runtime dependencies from builder
 WORKDIR /tmp
 COPY --from=builder /tmp/passwd /tmp/group /tmp/shadow /etc/
 COPY --from=builder /sbin/tini-static /sbin/tini
-COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
-COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
+COPY --from=builder --chown="${UID}:${GID}" /usr/sbin/freenginx /usr/sbin/freenginx
+COPY --from=builder --chown="${UID}:${GID}" /etc/freenginx /etc/freenginx
 # Copy configuration files
-COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
-COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
+COPY --chown="${UID}:${GID}" ./freenginx.conf /etc/freenginx/freenginx.conf
+COPY --chown="${UID}:${GID}" ./default.conf /etc/freenginx/conf.d/default.conf
 
 # Use tini as init process for proper signal handling
 ENTRYPOINT [ "/sbin/tini", "--" ]
@@ -215,7 +220,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
 STOPSIGNAL SIGQUIT
 
 # Run as non-root user for security
-USER freenginx
+USER "${UID}:${GID}"
 
 # Start FreeNGINX in foreground mode
 CMD ["/usr/sbin/freenginx", "-g", "daemon off;"]
