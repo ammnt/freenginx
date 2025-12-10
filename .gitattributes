@@ -9,7 +9,7 @@
 # Specific files
 Dockerfile.template linguist-language=Dockerfile linguist-detectable
 # freenginx.conf linguist-language=Nginx linguist-detectable
-# freenginx_http3.conf linguist-language=Nginx linguist-detectable
+# example.conf linguist-language=Nginx linguist-detectable
 # freenginx-seccomp.json linguist-language=JSON linguist-detectable
 # freenginx.toml linguist-language=TOML linguist-detectable
 # cosign.pub linguist-language=Text linguist-detectable
