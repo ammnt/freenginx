@@ -32,7 +32,7 @@ RUN set -e \
     && update-ca-certificates \
     # Clone FreeNGINX webserver and remove documentation
     && git config --global advice.detachedHead false \
-    && git clone -q --depth 1 --recursive -j8 --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx freenginx && rm -rf /tmp/nginx/docs/html/* \
+    && git clone -q --depth 1 --recursive -j8 --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx freenginx && rm -rf /tmp/freenginx/docs/html/* \
     # Clone OpenSSL with HTTP/3 and QUIC support
     && git clone -q --depth 1 --recursive -j8 --single-branch -b "openssl-${OPENSSL_VERSION}" https://github.com/openssl/openssl \
     # Clone PCRE2 for regex with JIT support
@@ -42,22 +42,22 @@ RUN set -e \
     # Clone Brotli compression module
     && git clone -q --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli \
     # Security hardening: Remove server headers and version information
-    && sed -ie 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
-    && sed -ie 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
+    && sed -ie 's@"nginx/"@" "@g' /tmp/freenginx/src/core/nginx.h \
+    && sed -ie 's@"nginx version: "@" "@g' /tmp/freenginx/src/core/nginx.c \
     # Remove FreeNGINX specific version information
-    && sed -ie 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
-    && sed -ie 's@"freenginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
+    && sed -ie 's@"freenginx"@" "@g' /tmp/freenginx/src/core/nginx.h \
+    && sed -ie 's@"freenginx version: "@" "@g' /tmp/freenginx/src/core/nginx.c \
     # Remove Server header from HTTP responses (HTTP/1.1, HTTP/2, HTTP/3)
     && sed -ie 's@r->headers_out.server == NULL@0@g' \
-        /tmp/nginx/src/http/ngx_http_header_filter_module.c \
-        /tmp/nginx/src/http/v2/ngx_http_v2_filter_module.c \
-        /tmp/nginx/src/http/v3/ngx_http_v3_filter_module.c \
+        /tmp/freenginx/src/http/ngx_http_header_filter_module.c \
+        /tmp/freenginx/src/http/v2/ngx_http_v2_filter_module.c \
+        /tmp/freenginx/src/http/v3/ngx_http_v3_filter_module.c \
     # Remove default footer from error pages
-    && sed -ie 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
+    && sed -ie 's@<hr><center>freenginx</center>@@g' /tmp/freenginx/src/http/ngx_http_special_response.c \
     # Anonymize version strings in source code
-    && sed -ie 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
+    && sed -ie 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/freenginx/src/core/nginx.h \
     # Prioritize ChaCha20 cipher for better performance on mobile devices
-    && sed -ie 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/nginx/src/event/ngx_event_openssl.c
+    && sed -ie 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/freenginx/src/event/ngx_event_openssl.c
 
 # Build Brotli compression library with optimizations
 WORKDIR /tmp/zlib-ng
