@@ -6,56 +6,63 @@ ARG OPENSSL_VERSION
 ARG APP_VERSION
 ARG PCRE_VERSION
 ARG ZLIB_VERSION
-ARG BUILD_DATE
+ARG ZSTD_VERSION
+ARG UID
+ARG GID
 
 WORKDIR /tmp
 # System setup and dependency installation
 RUN set -e \
     # Create non-root user for security (freenginx:freenginx)
-    && addgroup --system --gid 101 freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid 101 --no-create-home freenginx \
+    && addgroup --system --gid "${GID}" freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid "${UID}" --no-create-home freenginx \
     # Update system and install build dependencies
-    && apk -U upgrade && apk add --no-cache \
-        gcc=14.2.0-r6 \
+    && apk -U -q upgrade && apk add -q --no-cache \
+        gcc=15.2.0-r2 \
         make=4.4.1-r3 \
-        git=2.49.1-r0 \
+        git=2.52.0-r0 \
         mimalloc2-dev=2.2.3-r2 \
         tini-static=0.19.0-r3 \
         build-base=0.5-r3 \
-        ca-certificates=20250911-r0 \
-        linux-headers=6.14.2-r0 \
-        tzdata=2025b-r0 \
+        ca-certificates=20251003-r0 \
+        linux-headers=6.16.12-r0 \
+        tzdata=2025c-r0 \
         upx=5.0.2-r0 \
-        perl=5.40.3-r0 \
-        cmake=3.31.7-r1 \
+        perl=5.42.0-r0 \
+        cmake=4.1.3-r0 \
+        zstd-dev=1.5.7-r2 \
+        zstd-static=1.5.7-r2 \
     # Update CA certificates for SSL verification
     && update-ca-certificates \
     # Clone FreeNGINX webserver and remove documentation
-    && git clone --depth 1 --recursive -j8 --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx && rm -rf /tmp/nginx/docs/html/* \
+    && git config --global advice.detachedHead false \
+    && git clone -q --depth 1 --recursive -j8 --single-branch -b "release-${APP_VERSION}" https://github.com/freenginx/nginx freenginx && rm -rf /tmp/freenginx/docs/html/* \
     # Clone OpenSSL with HTTP/3 and QUIC support
-    && git clone --depth 1 --recursive -j8 --single-branch -b "openssl-${OPENSSL_VERSION}" https://github.com/openssl/openssl \
+    && git clone -q --depth 1 --recursive -j8 --single-branch -b "openssl-${OPENSSL_VERSION}" https://github.com/openssl/openssl \
     # Clone PCRE2 for regex with JIT support
-    && git clone --depth 1 --recursive -j8 --single-branch -b "pcre2-${PCRE_VERSION}" https://github.com/PCRE2Project/pcre2 \
+    && git clone -q --depth 1 --recursive -j8 --single-branch -b "pcre2-${PCRE_VERSION}" https://github.com/PCRE2Project/pcre2 \
     # Clone zlib-ng for modern compression performance
-    && git clone --depth 1 --recursive -j8 --single-branch -b "${ZLIB_VERSION}" https://github.com/zlib-ng/zlib-ng.git \
+    && git clone -q --depth 1 --recursive -j8 --single-branch -b "${ZLIB_VERSION}" https://github.com/zlib-ng/zlib-ng \
     # Clone Brotli compression module
-    && git clone --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli \
+    && git clone -q --depth 1 --recurse-submodules -j8 https://github.com/google/ngx_brotli \
+    # Clone ZSTD compression module
+    && git clone -q --depth 1 --recurse -j8 --single-branch -b "${ZSTD_VERSION}" https://github.com/tokers/zstd-nginx-module \
     # Security hardening: Remove server headers and version information
-    && sed -ie 's@"nginx/"@" "@g' /tmp/nginx/src/core/nginx.h \
-    && sed -ie 's@"nginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
+    && sed -ie 's@"nginx/"@" "@g' /tmp/freenginx/src/core/nginx.h \
+    && sed -ie 's@"nginx version: "@" "@g' /tmp/freenginx/src/core/nginx.c \
     # Remove FreeNGINX specific version information
-    && sed -ie 's@"freenginx"@" "@g' /tmp/nginx/src/core/nginx.h \
-    && sed -ie 's@"freenginx version: "@" "@g' /tmp/nginx/src/core/nginx.c \
+    && sed -ie 's@"freenginx"@" "@g' /tmp/freenginx/src/core/nginx.h \
+    && sed -ie 's@"freenginx version: "@" "@g' /tmp/freenginx/src/core/nginx.c \
     # Remove Server header from HTTP responses (HTTP/1.1, HTTP/2, HTTP/3)
     && sed -ie 's@r->headers_out.server == NULL@0@g' \
-        /tmp/nginx/src/http/ngx_http_header_filter_module.c \
-        /tmp/nginx/src/http/v2/ngx_http_v2_filter_module.c \
-        /tmp/nginx/src/http/v3/ngx_http_v3_filter_module.c \
+        /tmp/freenginx/src/http/ngx_http_header_filter_module.c \
+        /tmp/freenginx/src/http/v2/ngx_http_v2_filter_module.c \
+        /tmp/freenginx/src/http/v3/ngx_http_v3_filter_module.c \
     # Remove default footer from error pages
-    && sed -ie 's@<hr><center>freenginx</center>@@g' /tmp/nginx/src/http/ngx_http_special_response.c \
+    && sed -ie 's@<hr><center>freenginx</center>@@g' /tmp/freenginx/src/http/ngx_http_special_response.c \
     # Anonymize version strings in source code
-    && sed -ie 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/nginx/src/core/nginx.h \
+    && sed -ie 's@NGINX_VERSION      ".*"@NGINX_VERSION      " "@g' /tmp/freenginx/src/core/nginx.h \
     # Prioritize ChaCha20 cipher for better performance on mobile devices
-    && sed -ie 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/nginx/src/event/ngx_event_openssl.c
+    && sed -ie 's/SSL_OP_CIPHER_SERVER_PREFERENCE);/SSL_OP_CIPHER_SERVER_PREFERENCE | SSL_OP_PRIORITIZE_CHACHA);/g' /tmp/freenginx/src/event/ngx_event_openssl.c
 
 # Build Brotli compression library with optimizations
 WORKDIR /tmp/zlib-ng
@@ -161,12 +168,13 @@ RUN set -e \
         --without-mail_smtp_module \
         # Third-party modules
         --add-module="/tmp/ngx_brotli" \
+        --add-module="/tmp/zstd-nginx-module" \
     # Build and install FreeNGINX
     && make -s -j "$(nproc)" && make -s install && make -s clean \
     # Security hardening: strip debug symbols and compress binary
     && strip --strip-all /usr/sbin/freenginx \
     # Set proper permissions
-    && chown -R freenginx:freenginx /etc/freenginx && chmod -R g+w /etc/freenginx \
+    && chown -R "${UID}:${GID}" /etc/freenginx && chmod -R g+w /etc/freenginx \
     # Verify binary and dependencies
     && file /usr/sbin/freenginx && ldd /usr/sbin/freenginx || true \
     # Compress binary with UPX (minimal memory overhead)
@@ -177,16 +185,21 @@ RUN set -e \
 
 # Final distroless image
 FROM scratch
+ARG APP_VERSION
+ARG BUILD_DATE
+ARG UID
+ARG GID
+ARG VCS_REF
 
 # Copy minimal runtime dependencies from builder
 WORKDIR /tmp
 COPY --from=builder /tmp/passwd /tmp/group /tmp/shadow /etc/
 COPY --from=builder /sbin/tini-static /sbin/tini
-COPY --from=builder --chown=freenginx:freenginx /usr/sbin/freenginx /usr/sbin/freenginx
-COPY --from=builder --chown=freenginx:freenginx /etc/freenginx /etc/freenginx
+COPY --from=builder --chown="${UID}:${GID}" /usr/sbin/freenginx /usr/sbin/freenginx
+COPY --from=builder --chown="${UID}:${GID}" /etc/freenginx /etc/freenginx
 # Copy configuration files
-COPY --chown=freenginx:freenginx ./freenginx.conf /etc/freenginx/freenginx.conf
-COPY --chown=freenginx:freenginx ./default.conf /etc/freenginx/conf.d/default.conf
+COPY --chown="${UID}:${GID}" ./freenginx.conf /etc/freenginx/freenginx.conf
+COPY --chown="${UID}:${GID}" ./default.conf /etc/freenginx/conf.d/default.conf
 
 # Use tini as init process for proper signal handling
 ENTRYPOINT [ "/sbin/tini", "--" ]
@@ -205,7 +218,8 @@ LABEL description="Distroless FreeNGINX with HTTP/3, QUIC and PQC support🚀" \
       org.opencontainers.image.documentation="https://github.com/ammnt/freenginx/blob/main/README.md" \
       org.opencontainers.image.licenses="BSD-2-Clause License" \
       org.opencontainers.image.url="https://msftcnsi.com" \
-      org.opencontainers.image.version=${APP_VERSION}
+      org.opencontainers.image.version=${APP_VERSION} \
+      org.opencontainers.image.revision=${VCS_REF}
 
 # Health check for container orchestration
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
@@ -215,7 +229,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=2 \
 STOPSIGNAL SIGQUIT
 
 # Run as non-root user for security
-USER freenginx
+USER "${UID}:${GID}"
 
 # Start FreeNGINX in foreground mode
 CMD ["/usr/sbin/freenginx", "-g", "daemon off;"]
