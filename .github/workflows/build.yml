@@ -110,13 +110,13 @@ jobs:
         run: |
           curl -sSL -o ds.tar.gz https://github.com/mintoolkit/mint/releases/download/${{ env.MINT_VERSION }}/dist_linux.tar.gz
           tar -xf ds.tar.gz
-          ./dist_linux/mint --quiet build \
+          ./dist_linux/mint build \
             --target ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             --tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             --http-probe=false --continue-after=5 \
             --include-path=/etc/shadow --include-path=/etc/group
           docker run -d --rm -p 127.0.0.1:8080:8080/tcp ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          sleep 15 ; docker ps -a
+          sleep 15 ; docker images ; docker ps -a
           curl -sSI http://127.0.0.1:8080 || exit 1
 
       - name: Upload Mint report📁
