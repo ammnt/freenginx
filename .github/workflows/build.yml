@@ -206,7 +206,7 @@ jobs:
         uses: anchore/sbom-action@a930d0ac434e3182448fe678398ba5713717112a
         with:
           syft-version: v${{ env.SYFT_VERSION }}
-          image: ghcr.io/ammnt/freenginxgie:${{ env.APP_VERSION }}
+          image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           format: cyclonedx-json
           upload-artifact: true
           dependency-snapshot: true
