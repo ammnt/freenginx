@@ -108,9 +108,10 @@ jobs:
 
       - name: Slim image with Mint🔧
         run: |
+          set -x
           curl -sSL -o ds.tar.gz https://github.com/mintoolkit/mint/releases/download/${{ env.MINT_VERSION }}/dist_linux.tar.gz
           tar -xf ds.tar.gz
-          ./dist_linux/mint --quiet build \
+          ./dist_linux/mint build \
             --target ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             --tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
             --http-probe=false --continue-after=5 \
