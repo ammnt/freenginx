@@ -239,8 +239,6 @@ jobs:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign -y --key env://COSIGN_KEY ghcr.io/ammnt/freenginx@${{ env.DIGEST }} || true
-          cosign sign -y --key env://COSIGN_KEY ammnt/freenginx@${{ env.DIGEST }} || true
-          cosign verify --key cosign.pub ghcr.io/ammnt/freenginx@${{ env.DIGEST }} || true
-          cosign verify --key cosign.pub ammnt/freenginx@${{ env.DIGEST }} || true
+          cosign sign -y --key env://COSIGN_KEY ghcr.io/ammnt/freenginx@${{ env.DIGEST }}
+          cosign sign -y --key env://COSIGN_KEY ammnt/freenginx@${{ env.DIGEST }}
           docker system prune -f ; rm -rf ${{ github.workspace }}/*
