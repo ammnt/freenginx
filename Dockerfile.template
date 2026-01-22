@@ -208,4 +208,4 @@ STOPSIGNAL SIGQUIT
 USER "${UID}:${GID}"
 
 # Start FreeNGINX in foreground mode
-ENTRYPOINT ["/usr/sbin/angie", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/sbin/freenginx", "-g", "daemon off;"]
