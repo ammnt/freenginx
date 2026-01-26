@@ -166,14 +166,14 @@ RUN set -e \
     && make -s -j "$(nproc)" && make -s install && make -s clean \
     # Security hardening: strip debug symbols and compress binary
     && strip --strip-all /usr/sbin/freenginx \
-    && upx -q --best --lzma /usr/sbin/freenginx && rm -rf /tmp/* \
+    && upx -q --best --lzma /usr/sbin/freenginx \
     # Set proper permissions
     && chown -R "${UID}:${GID}" /etc/freenginx && chmod -R g+w /etc/freenginx \
     # Verify binary and dependencies
     && ldd /usr/sbin/freenginx || true \
     && strings /usr/sbin/freenginx | grep "zlib-ng" \
     && file /usr/sbin/freenginx | grep "statically" \
-    && ls -lash /usr/sbin/freenginx \
+    && ls -lash /usr/sbin/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
     && grep -E "(root|freenginx)" /etc/group > /tmp/group \
     && grep -E "(root|freenginx)" /etc/shadow > /tmp/shadow
