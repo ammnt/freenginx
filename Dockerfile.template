@@ -74,7 +74,6 @@ RUN set -e \
 # Configure and build FreeNGINX with security hardening and optimizations
 WORKDIR /tmp/freenginx
 RUN set -e \
-    && LIBRARY_PATH="/usr/local/lib:$LIBRARY_PATH" \
     && ./auto/configure \
         --with-debug \
         # Installation paths
