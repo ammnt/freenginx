@@ -165,11 +165,14 @@ RUN set -e \
     && strip --strip-all /usr/sbin/freenginx \
     && upx -q --best --lzma /usr/sbin/freenginx \
     # Set proper permissions
-    && chown -R "${UID}:${GID}" /etc/freenginx && chmod -R g+w /etc/freenginx \
-    && rm -rf /tmp/* \
+    && chown -R "${UID}:${GID}" /etc/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
     && grep -E "(root|freenginx)" /etc/group > /tmp/group \
-    && grep -E "(root|freenginx)" /etc/shadow > /tmp/shadow
+    && grep -E "(root|freenginx)" /etc/shadow > /tmp/shadow \
+    && find /etc/freenginx -type d -exec chmod 550 {} \; \
+    && find /etc/freenginx -type f -name "*.conf" -exec chmod 440 {} \; \
+    && find /etc/freenginx -type f -name "*.types" -exec chmod 440 {} \; \
+    && chmod 644 /tmp/passwd /tmp/group && chmod 640 /tmp/shadow
 
 # Final distroless image
 FROM scratch
@@ -181,8 +184,8 @@ ARG VCS_REF
 
 # Copy minimal runtime dependencies from builder
 WORKDIR /tmp
-COPY --from=builder /tmp/passwd /tmp/group /tmp/shadow /etc/
-COPY --from=builder --chown="${UID}:${GID}" /usr/sbin/freenginx /usr/sbin/freenginx
+COPY --from=builder --chown="0:0" /tmp/passwd /tmp/group /tmp/shadow /etc/
+COPY --from=builder --chown="${UID}:${GID}" --chmod="550" /usr/sbin/freenginx /usr/sbin/freenginx
 COPY --from=builder --chown="${UID}:${GID}" /etc/freenginx /etc/freenginx
 # Copy configuration files
 COPY --chown="${UID}:${GID}" ./freenginx.conf /etc/freenginx/freenginx.conf
