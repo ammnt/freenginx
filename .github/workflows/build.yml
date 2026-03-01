@@ -6,7 +6,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  COSIGN_VERSION: "3.0.4"
+  COSIGN_VERSION: "3.0.5"
   BUILDX_VERSION: "0.31.1"
   BUILDKIT_VERSION: "0.27.1"
   MINT_VERSION: "1.41.8"
@@ -28,6 +28,8 @@ jobs:
       security-events: write
       attestations: write
       artifact-metadata: write
+    outputs:
+      digest: ${{ steps.digest.outputs.digest }}
 
     steps:
       - name: Checkout repository📥
@@ -54,33 +56,8 @@ jobs:
           version: v${{ env.BUILDX_VERSION }}
           driver-opts: image=moby/buildkit:v${{ env.BUILDKIT_VERSION }}-rootless
 
-      - name: Login to GHCR🔑
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}
-
-      - name: Login to Docker Hub🔑
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Lint Dockerfile with Hadolint🔍
-        uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5
-        with:
-          dockerfile: Dockerfile.template
-          format: sarif
-          output-file: hadolint.sarif
-          config: ./hadolint.yaml
-
-      - name: Upload Hadolint report📁
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e
-        with:
-          sarif_file: hadolint.sarif
-
       - name: Build Docker image🐳
+        id: build
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false
@@ -118,13 +95,31 @@ jobs:
             --http-probe=false --continue-after=5 \
             --include-path=/etc/shadow --include-path=/etc/group
 
-      - name: Upload Mint report📁
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
-        with:
-          name: MintToolkit Mint (Slim) report
-          path: slim.report.json
+      - name: Get image digest🔢
+        id: digest
+        run: |
+          DIGEST=$(docker inspect -f='{{index .RepoDigests 0}}' ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} | cut -d'@' -f2)
+          echo "digest=$DIGEST" >> $GITHUB_OUTPUT
 
-      - name: Explore the Docker image with Dive🔍
+  security-scans:
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        scanner: [hadolint, dive, dockle, scout, trivy, grype, snyk, syft]
+      fail-fast: false
+    steps:
+      - name: Lint Dockerfile with Hadolint🔍
+        if: matrix.scanner == 'hadolint'
+        uses: hadolint/hadolint-action@2332a7b74a6de0dda2e2221d575162eba76ba5e5
+        with:
+          dockerfile: Dockerfile.template
+          format: sarif
+          output-file: hadolint.sarif
+          config: ./hadolint.yaml
+
+      - name: Explore with Dive🔍
+        if: matrix.scanner == 'dive'
         env:
           CI: true
         run: |
@@ -132,7 +127,8 @@ jobs:
           tar xzf dive_${{ env.DIVE_VERSION }}_linux_amd64.tar.gz -C /usr/local/bin
           dive --config ./dive-ci.yml ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
 
-      - name: Security scan with Dockle🛡️
+      - name: Dockle scan🛡️
+        if: matrix.scanner == 'dockle'
         uses: goodwithtech/dockle-action@e30e6af832aad6ea7dca2a248d31a85eab6dbd68
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
@@ -140,40 +136,33 @@ jobs:
           exit-level: "warn"
           ignore: "CIS-DI-0010"
 
-      - name: Security scan with Docker Scout🛡️
+      - name: Docker Scout scan🛡️
+        if: matrix.scanner == 'scout'
         uses: docker/scout-action@f8c776824083494ab0d56b8105ba2ca85c86e4de
         with:
           command: cves,sbom
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
-          sarif-file: ${{ github.workspace }}/scout.sarif
+          sarif-file: scout.sarif
           write-comment: true
           summary: false
           exit-code: true
           github-token: ${{ secrets.GH_TOKEN }}
 
-      - name: Upload Docker Scout report📁
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e
-        with:
-          sarif_file: scout.sarif
-
-      - name: Security scan with Trivy🛡️
+      - name: Trivy scan🛡️
+        if: matrix.scanner == 'trivy'
         uses: aquasecurity/trivy-action@e368e328979b113139d6f9068e03accaed98a518
         with:
           image-ref: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           scan-type: image
-          format: "sarif"
-          output: "${{ github.workspace }}/trivy.sarif"
+          format: sarif
+          output: trivy.sarif
           severity: "MEDIUM,HIGH,CRITICAL"
           scanners: "vuln,secret"
           exit-code: "1"
           github-pat: ${{ secrets.GH_TOKEN }}
 
-      - name: Upload Trivy report📁
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e
-        with:
-          sarif_file: trivy.sarif
-
-      - name: Security scan with Grype🛡️
+      - name: Grype scan🛡️
+        if: matrix.scanner == 'grype'
         uses: anchore/scan-action@7037fa011853d5a11690026fb85feee79f4c946c
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
@@ -181,30 +170,21 @@ jobs:
           severity-cutoff: critical
           output-format: sarif
           grype-version: v${{ env.GRYPE_VERSION }}
-          output-file: ${{ github.workspace }}/grype.sarif
+          output-file: grype.sarif
 
-      - name: Upload Grype report📁
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e
-        with:
-          sarif_file: grype.sarif
-
-      - name: Security scan with Snyk🛡️
-        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
+      - name: Snyk scan🛡️
+        if: matrix.scanner == 'snyk'
         continue-on-error: true
+        uses: snyk/actions/docker@9adf32b1121593767fc3c057af55b55db032dc04
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           image: ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }}
           sarif: true
-          json: false
           args: --file=Dockerfile.template --sarif-file-output=snyk.sarif
 
-      - name: Upload Snyk report📁
-        uses: github/codeql-action/upload-sarif@89a39a4e59826350b863aa6b6252a07ad50cf83e
-        with:
-          sarif_file: snyk.sarif
-
       - name: Generate SBOM with Syft📋
+        if: matrix.scanner == 'syft'
         uses: anchore/sbom-action@17ae1740179002c89186b61233e0f892c3118b11
         with:
           syft-version: v${{ env.SYFT_VERSION }}
@@ -214,6 +194,33 @@ jobs:
           dependency-snapshot: true
           github-token: ${{ secrets.GH_TOKEN }}
 
+      - name: Upload ${{ matrix.scanner }} report📁
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
+        with:
+          name: ${{ matrix.scanner }}-report
+          path: |
+            *.sarif
+            *.json
+            *.spdx
+            *.cyclonedx
+
+  finalize:
+    needs: [build, security-scans]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Login to GHCR🔑
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
+
+      - name: Login to Docker Hub🔑
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Push images to registries🚚
         run: |
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ghcr.io/ammnt/freenginx:latest
@@ -221,16 +228,13 @@ jobs:
           docker tag ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} ammnt/freenginx:latest
           docker push ghcr.io/ammnt/freenginx --all-tags
           docker push ammnt/freenginx --all-tags
-          DIGEST=$(docker inspect -f='{{index .RepoDigests 0}}' ghcr.io/ammnt/freenginx:${{ env.APP_VERSION }} \
-            | cut -d'@' -f2)
-          echo "DIGEST=$DIGEST" >> $GITHUB_ENV
 
       - name: Attest image provenance📜
         continue-on-error: true
         uses: actions/attest-build-provenance@a2bbfa25375fe432b6a289bc6b6cd05ecd0c4c32
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          subject-digest: ${{ env.DIGEST }}
+          subject-digest: ${{ needs.build.outputs.digest }}
           push-to-registry: true
           show-summary: false
           github-token: ${{ secrets.GH_TOKEN }}
@@ -242,6 +246,6 @@ jobs:
           COSIGN_KEY: ${{ secrets.COSIGN_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign -y --key env://COSIGN_KEY ghcr.io/ammnt/freenginx@${{ env.DIGEST }}
-          cosign sign -y --key env://COSIGN_KEY ammnt/freenginx@${{ env.DIGEST }}
+          cosign sign -y --key env://COSIGN_KEY ghcr.io/ammnt/freenginx@${{ needs.build.outputs.digest }}
+          cosign sign -y --key env://COSIGN_KEY ammnt/freenginx@${{ needs.build.outputs.digest }}
           docker system prune -f ; rm -rf ${{ github.workspace }}/*
