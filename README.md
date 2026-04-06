@@ -111,7 +111,7 @@ freenginx/
 ├── ⚙️ default.conf                      # Default FreeNGINX configuration
 ├── 🐳 dive-ci.yml                       # Dive configuration for Docker image analysis
 ├── 🐳 Dockerfile.template               # Dockerfile template (dynamic generation)
-├── 📄 example.conf                      # Example FreeNGINX configuration
+├── 📄 example.conf                      # Example FreeNGINX configuration for HTTP/3
 ├── ✅ hadolint.yaml                     # Hadolint configuration (Dockerfile linter)
 ├── ⚖️ LICENSE                           # License agreement
 ├── 🚀 freenginx.conf                    # Main FreeNGINX configuration file
