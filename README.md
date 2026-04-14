@@ -96,28 +96,34 @@ spec:
 ### Repository structure
 ```bash
 freenginx/
-├── 📋 dependabot.yml                    # Automated dependency updates
-├── 📁 ISSUE_TEMPLATE/                   # Issue creation templates
-│   ├── 🐛 bug_report.md                 # Bug report template
-│   ├── ⚙️ config.yml                    # Issue templates configuration
-│   └── 💡 feature_request.md            # Feature request template
-├── 📝 PULL_REQUEST_TEMPLATE.md          # Pull Request template
-├── 📁 workflows/                        # GitHub Actions CI/CD pipelines
-│   ├── 🔨 build.yml                     # Build and testing
-│   ├── 🔒 codeql.yml                    # Static security analysis (CodeQL)
-│   └── 🏷️ label.yml                     # Workflow for triage PR and apply labels
 ├── 📜 CODE_OF_CONDUCT.md                # Code of Conduct for contributors
 ├── 🤝 CONTRIBUTING.md                   # Contributing guidelines
 ├── 🔑 cosign.pub                        # Public key for image signing (Sigstore/cosign)
 ├── ⚙️ default.conf                      # Default FreeNGINX configuration
 ├── 🐳 dive-ci.yml                       # Dive configuration for Docker image analysis
 ├── 🐳 Dockerfile.template               # Dockerfile template (dynamic generation)
+├── 🙈 .dockerignore                     # Files to exclude from Docker build context
+├── 🔧 .env                              # Environment variables configuration
 ├── 📄 example.conf                      # Example FreeNGINX configuration for HTTP/3
-├── ✅ hadolint.yaml                     # Hadolint configuration (Dockerfile linter)
-├── ⚖️ LICENSE                           # License agreement
 ├── 🚀 freenginx.conf                    # Main FreeNGINX configuration file
 ├── 🛡️ freenginx-seccomp.json            # Seccomp profile for FreeNGINX security
 ├── 📦 freenginx.toml                    # Additional FreeNGINX configuration (TOML format)
+├── ⚙️ .gitattributes                    # Git attributes configuration
+├── 📁 .github/                          # GitHub-specific configuration
+│   ├── 📋 dependabot.yml                # Automated dependency updates
+│   ├── 📁 ISSUE_TEMPLATE/               # Issue creation templates
+│   │   ├── 🐛 bug_report.md             # Bug report template
+│   │   ├── ⚙️ config.yml                # Issue templates configuration
+│   │   └── 💡 feature_request.md        # Feature request template
+│   ├── 🏷️ labeler.yml                   # PR labeler configuration
+│   ├── 📝 PULL_REQUEST_TEMPLATE.md      # Pull Request template
+│   └── 📁 workflows/                    # GitHub Actions CI/CD pipelines
+│       ├── 🔨 build.yml                 # Build and testing workflow
+│       ├── 🔒 codeql.yml                # Static security analysis (CodeQL)
+│       └── 🏷️ label.yml                 # Workflow for triage PR and apply labels
+├── 🙈 .gitignore                        # Git ignore rules
+├── ✅ hadolint.yaml                     # Hadolint configuration (Dockerfile linter)
+├── ⚖️ LICENSE                           # License agreement
 ├── 📖 README.md                         # Main project documentation
 ├── 🔒 SECURITY.md                       # Security policy and vulnerability reporting
 └── 🔍 trivy.yaml                        # Trivy configuration (vulnerability scanning)
