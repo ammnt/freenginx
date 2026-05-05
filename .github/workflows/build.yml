@@ -32,6 +32,14 @@ jobs:
       openssl_version: ${{ steps.load_env.outputs.OPENSSL_VERSION }}
       build_date: ${{ steps.load_env.outputs.BUILD_DATE }}
       vcs_ref: ${{ steps.load_env.outputs.VCS_REF }}
+      cosign_version: ${{ steps.load_env.outputs.COSIGN_VERSION }}
+      buildx_version: ${{ steps.load_env.outputs.BUILDX_VERSION }}
+      buildkit_version: ${{ steps.load_env.outputs.BUILDKIT_VERSION }}
+      mint_version: ${{ steps.load_env.outputs.MINT_VERSION }}
+      dive_version: ${{ steps.load_env.outputs.DIVE_VERSION }}
+      grype_version: ${{ steps.load_env.outputs.GRYPE_VERSION }}
+      syft_version: ${{ steps.load_env.outputs.SYFT_VERSION }}
+      trivy_version: ${{ steps.load_env.outputs.TRIVY_VERSION }
 
     steps:
       - name: Checkout repository📥
@@ -66,7 +74,6 @@ jobs:
 
           echo "BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
           echo "VCS_REF=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          printenv | sort -n
 
       - name: Login to GHCR🔑
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
@@ -268,7 +275,7 @@ jobs:
       - name: Install Cosign🔐
         uses: sigstore/cosign-installer@cad07c2e89fa2edd6e2d7bab4c1aa38e53f76003
         with:
-          cosign-release: v${{ env.COSIGN_VERSION }}
+          cosign-release: v${{ needs.build.outputs.cosign_version }}
 
       - name: Login to GHCR🔑
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
