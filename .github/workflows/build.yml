@@ -58,8 +58,8 @@ jobs:
 
           fetch_ver() {
             curl -sSfL "https://api.github.com/repos/$1/releases/latest" | \
-            grep '"tag_name":' | \
-            sed -E 's/.*"v?([0-9][^"]+)".*/\1/'
+            jq -r '.tag_name // empty' | \
+            sed -E 's/^v?([0-9][^"]+).*/\1/'
           }
 
           for pair in "COSIGN_VERSION:sigstore/cosign" "BUILDX_VERSION:docker/buildx" \
