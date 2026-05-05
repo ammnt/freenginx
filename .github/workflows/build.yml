@@ -213,7 +213,7 @@ jobs:
           scanners: "vuln,secret"
           exit-code: "1"
           github-pat: ${{ secrets.GH_TOKEN }}
-          version: v${{ env.TRIVY_VERSION }}
+          version: v${{ needs.build.outputs.trivy_version }}
           trivy-config: trivy.yaml
 
       - name: Grype scan🛡️
@@ -224,7 +224,7 @@ jobs:
           fail-build: false
           severity-cutoff: critical
           output-format: sarif
-          grype-version: v${{ env.GRYPE_VERSION }}
+          grype-version: v${{ needs.build.outputs.grype_version }}
           output-file: grype.sarif
 
       - name: Snyk scan🛡️
@@ -242,7 +242,7 @@ jobs:
         if: matrix.scanner == 'syft'
         uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610
         with:
-          syft-version: v${{ env.SYFT_VERSION }}
+          syft-version: v${{ needs.build.outputs.syft_version }}
           image: ghcr.io/ammnt/freenginx:${{ needs.build.outputs.app_version }}
           format: cyclonedx-json
           upload-artifact: true
