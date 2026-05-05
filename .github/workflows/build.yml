@@ -120,9 +120,9 @@ jobs:
         env:
           CI: true
         run: |
-          docker pull ghcr.io/ammnt/freenginx:${{ needs.build.outputs.app_version }}
+          docker pull ghcr.io/ammnt/freenginx:${{ steps.load_env.outputs.APP_VERSION }}
           curl -sSfL "https://github.com/wagoodman/dive/releases/download/v${{ env.DIVE_VERSION }}/dive_${{ env.DIVE_VERSION }}_linux_amd64.tar.gz" | tar -zxf -
-          ./dive --config ./dive-ci.yml -j dive.report.json ghcr.io/ammnt/freenginx:${{ needs.build.outputs.app_version }}
+          ./dive --config ./dive-ci.yml -j dive.report.json ghcr.io/ammnt/freenginx:${{ steps.load_env.outputs.APP_VERSION }}
 
       - name: Upload Mint report📁
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
