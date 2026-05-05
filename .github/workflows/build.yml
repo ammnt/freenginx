@@ -39,7 +39,7 @@ jobs:
       dive_version: ${{ steps.load_env.outputs.DIVE_VERSION }}
       grype_version: ${{ steps.load_env.outputs.GRYPE_VERSION }}
       syft_version: ${{ steps.load_env.outputs.SYFT_VERSION }}
-      trivy_version: ${{ steps.load_env.outputs.TRIVY_VERSION }
+      trivy_version: ${{ steps.load_env.outputs.TRIVY_VERSION }}
 
     steps:
       - name: Checkout repository📥
