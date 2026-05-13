@@ -244,8 +244,8 @@ jobs:
         uses: quay/clair-action@e5340cbfbf57d0ee596363fb98fd3d282aa71e17
         with:
           image-ref: ghcr.io/ammnt/freenginx:${{ needs.build.outputs.app_version }}
-          format: sarif
-          output: clair.sarif
+          # format: sarif
+          # output: clair.sarif
 
       - name: Generate SBOM with Syft📋
         if: matrix.scanner == 'syft'
