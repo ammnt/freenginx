@@ -103,6 +103,7 @@ freenginx/
 ├── 🐳 dive-ci.yml                       # Dive configuration for Docker image analysis
 ├── 🐳 Dockerfile.template               # Dockerfile template (dynamic generation)
 ├── 🙈 .dockerignore                     # Files to exclude from Docker build context
+├── ⚙️ .editorconfig                     # EditorConfig for consistent coding styles
 ├── 🔧 .env                              # Environment variables configuration
 ├── 📄 example.conf                      # Example FreeNGINX configuration for HTTP/3
 ├── 🚀 freenginx.conf                    # Main FreeNGINX configuration file
