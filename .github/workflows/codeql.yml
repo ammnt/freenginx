@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@89a39a4e59826350b863aa6b6252a07ad50cf83e
+        uses: github/codeql-action/init@8aad20d150bbac5944a9f9d289da16a4b0d87c1e
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
