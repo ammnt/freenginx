@@ -25,10 +25,10 @@
 ## 🌐 Image Variants
 
 Docker Hub:<br>
-> **ammnt/freenginx:latest**
+> **ammnt/freenginx**
 
 GitHub Container Registry:<br>
-> **ghcr.io/ammnt/freenginx:latest**
+> **ghcr.io/ammnt/freenginx**
 
 ## 📦 Quick Start
 
@@ -38,7 +38,7 @@ docker run -d \
   --name freenginx \
   -p 80:8080 \
   -p 443:8443 \
-  ammnt/freenginx:latest
+  ammnt/freenginx
 ```
 
 ## 🔧 Advanced Configuration
