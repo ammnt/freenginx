@@ -156,7 +156,7 @@ freenginx/
 
 ### **Supply Chain Integrity**
 - **Signed images** - signatures and **provenance attestation** (SLSA Level 3 requirements, in-toto attestations)
-- **Comprehensive scanning** by security tools (Scout, Trivy, Snyk, Grype, Dockle, Hadolin, Clair, Checkov)
+- **Comprehensive scanning** by security tools (Scout, Trivy, Snyk, Grype, Dockle, Hadolint, Clair, Checkov)
 - **SBOM generation** with Syft (NTIA Software Component Transparency)
 
 ## 🚀 Ultimate Optimization
