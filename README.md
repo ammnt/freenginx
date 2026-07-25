@@ -133,7 +133,7 @@ freenginx/
 
 ## 🔥 Why Choose This Image?
 
-### **GCC hardened compilation suite (-fhardened) providing comprehensive security:**
+### **Compilator hardened compilation suite (-fhardened) providing comprehensive security:**
 - **Memory protection** - stack smashing protection, stack clash protection
 - **Control Flow Integrity** - full CFI protection against ROP/JOP attacks (Intel CET)
 - **Initialization hardening** - automatic zero-initialization to prevent data leaks

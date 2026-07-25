@@ -12,7 +12,9 @@ RUN set -eu \
     && addgroup --system --gid "10001" freenginx && adduser --disabled-password --shell /bin/false --ingroup freenginx --uid "10001" --no-create-home freenginx \
     # Update system and install build dependencies
     && apk -U -q upgrade && apk add -q --no-cache \
-        gcc=15.2.0-r5 \
+        clang22-22.1.3-r2 \
+        lld22-22.1.3-r0 \
+        llvm=22-r0 \
         make=4.4.1-r4 \
         git=2.54.0-r0 \
         mimalloc2-dev=2.2.7-r0 \
@@ -74,7 +76,8 @@ RUN mkdir -p /tmp/ngx_brotli/deps/brotli/out \
 
 # Configure and build FreeNGINX with security hardening and optimizations
 WORKDIR /tmp/freenginx
-RUN ./auto/configure \
+RUN CC=clang CXX=clang++ LD=lld AR=llvm-ar NM=llvm-nm RANLIB=llvm-ranlib STRIP=llvm-strip \
+    && ./auto/configure \
         --with-debug \
         # Installation paths
         --prefix="/etc/freenginx" \
@@ -106,11 +109,11 @@ RUN ./auto/configure \
         # Compilation flags
         --with-cc-opt="\
             -static-pie \
-            -static-libgcc \
             -O2 \
             -march=x86-64 \
             -flto \
             -fhardened \
+            -fcf-protection=full \
             -Wformat \
             -Wformat-security \
             -Werror=format-security \
@@ -125,7 +128,9 @@ RUN ./auto/configure \
             -lz \
             -static-pie \
             -Wl,-z,noexecstack \
-            -Wl,-z,separate-code" \
+            -Wl,-z,separate-code \
+            -Wl,-z,shstk \
+            -Wl,-z,ibt" \
         # Core features
         --with-compat \
         --with-pcre-jit \
@@ -166,11 +171,12 @@ RUN ./auto/configure \
     # Build and install FreeNGINX
     && make -s -j "$(nproc)" && make -s install && make -s clean \
     # Security hardening: strip debug symbols and compress binary
-    && strip --strip-all /usr/sbin/freenginx \
+    && llvm-strip --strip-all /usr/sbin/freenginx \
     && upx -q --best --lzma /usr/sbin/freenginx \
     && ldd /usr/sbin/freenginx || true \
-    && file /usr/sbin/freenginx \
-    && readelf -d /usr/sbin/freenginx \
+    && file /usr/sbin/freenginx | grep 'statically linked' \
+    && readelf -dn /usr/sbin/freenginx | grep -E 'Properties|no dynamic' \
+    && ls -lash /usr/sbin/freenginx \
     # Set proper permissions
     && chown -R "10001:10001" /etc/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
