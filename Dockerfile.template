@@ -76,15 +76,8 @@ RUN mkdir -p /tmp/ngx_brotli/deps/brotli/out \
 
 # Configure and build FreeNGINX with security hardening and optimizations
 WORKDIR /tmp/freenginx
-ENV CC=clang \
-    CXX=clang++ \
-    LD=lld \
-    AR=llvm-ar \
-    NM=llvm-nm \
-    RANLIB=llvm-ranlib \
-    STRIP=llvm-strip
-
-RUN ./auto/configure \
+RUN CC=clang CXX=clang++ LD=lld AR=llvm-ar NM=llvm-nm RANLIB=llvm-ranlib STRIP=llvm-strip \
+    && ./auto/configure \
         --with-debug \
         # Installation paths
         --prefix="/etc/freenginx" \
