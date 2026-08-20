@@ -183,6 +183,7 @@ jobs:
           output-file: hadolint.sarif
           config: ./hadolint.yaml
           ignore: SC2034
+          failure-threshold: warning
 
       - name: Checkov scan🔍
         if: matrix.scanner == 'checkov'
@@ -268,7 +269,6 @@ jobs:
 
       - name: Update Clair DB🔄
         if: matrix.scanner == 'clair'
-        continue-on-error: true
         uses: quay/clair-action@d24c74d7e3eaf5c9e3d6b0d566f6c1ac7d73f682
         with:
           db-file: matcher.db
@@ -276,7 +276,6 @@ jobs:
 
       - name: Save Clair DB to cache💾
         if: matrix.scanner == 'clair'
-        continue-on-error: true
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: matcher.db
@@ -284,7 +283,6 @@ jobs:
 
       - name: Clair scan🛡️
         if: matrix.scanner == 'clair'
-        continue-on-error: true
         uses: quay/clair-action@d24c74d7e3eaf5c9e3d6b0d566f6c1ac7d73f682
         with:
           image-ref: ghcr.io/ammnt/freenginx:${{ needs.build.outputs.app_version }}
