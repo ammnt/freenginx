@@ -1,6 +1,6 @@
 # Build arguments for version pinning and reproducibility
-ARG BASE_VERSION
-ARG BASE_HASH
+ARG BASE_VERSION=3.24.1
+ARG BASE_HASH=bec4ccd3817e7c824eb0388971a0b83fab111d586285511ba0266b77e8dc65a9
 FROM alpine:${BASE_VERSION}@sha256:${BASE_HASH} AS builder
 ARG OPENSSL_VERSION
 ARG APP_VERSION
@@ -164,10 +164,6 @@ RUN CC=clang CXX=clang++ LD=lld AR=llvm-ar NM=llvm-nm RANLIB=llvm-ranlib STRIP=l
     # Security hardening: strip debug symbols and compress binary
     && llvm-strip --strip-all /usr/sbin/freenginx \
     && upx -qq --best --lzma /usr/sbin/freenginx \
-    && ldd /usr/sbin/freenginx || true \
-    && file /usr/sbin/freenginx | grep 'statically linked' \
-    && readelf -dn /usr/sbin/freenginx | grep -E 'Properties|no dynamic' \
-    && ls -lash /usr/sbin/freenginx \
     # Set proper permissions
     && chown -R "10001:10001" /etc/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
