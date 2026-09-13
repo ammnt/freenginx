@@ -161,6 +161,7 @@ RUN ./auto/configure \
     && upx -qq --best --lzma /usr/sbin/freenginx \
     && ls -lash /usr/sbin/freenginx \
     && file /usr/sbin/freenginx | grep 'statically linked' \
+    && readelf -dn /usr/sbin/freenginx | grep -E 'Properties|no dynamic' \
     # Set proper permissions
     && chown -R "10001:10001" /etc/freenginx && rm -rf /tmp/* \
     && grep -E "(root|freenginx)" /etc/passwd > /tmp/passwd \
