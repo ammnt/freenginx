@@ -156,7 +156,7 @@ RUN ./auto/configure \
     # Build and install FreeNGINX
     && make -s -j "$(nproc)" && make -s install && make -s clean \
     # Security hardening: strip debug symbols and compress binary
-    && strings /usr/sbin/nginx | grep -iE "zlib-ng/zlib.h|mimalloc_version" \
+    && strings /usr/sbin/freenginx | grep -iE "zlib-ng/zlib.h|mimalloc_version" \
     && llvm-strip --strip-all /usr/sbin/freenginx \
     && upx -qq --best --lzma /usr/sbin/freenginx \
     && ls -lash /usr/sbin/freenginx \
