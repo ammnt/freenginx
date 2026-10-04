@@ -83,8 +83,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            BASE_VERSION=${{ steps.load_env.outputs.BASE_VERSION }}
-            BASE_HASH=${{ steps.load_env.outputs.BASE_HASH }}
             OPENSSL_VERSION=${{ steps.load_env.outputs.OPENSSL_VERSION }}
             APP_VERSION=${{ steps.load_env.outputs.APP_VERSION }}
             VCS_REF=${{ steps.load_env.outputs.VCS_REF }}
