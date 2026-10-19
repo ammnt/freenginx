@@ -141,7 +141,7 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.digest.outputs.digest }}
           push-to-registry: true
-          show-summary: false
+          show-summary: true
           github-token: ${{ secrets.GH_TOKEN }}
 
       - name: Install Cosign🔐
@@ -220,7 +220,7 @@ jobs:
           image: ghcr.io/ammnt/freenginx:${{ needs.build-and-publish.outputs.app_version }}
           sarif-file: scout.sarif
           write-comment: true
-          summary: true
+          summary: false
           github-token: ${{ secrets.GH_TOKEN }}
 
       - name: Trivy scan🛡️
