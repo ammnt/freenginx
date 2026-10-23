@@ -1,4 +1,4 @@
-# 🚀 Distroless freenginx: Hardened & Optimized image
+# 🚀 Distroless FreeNGINX: Hardened & Optimized image
 
 | | | | | | | |
 |---|---|---|---|---|---|---|
@@ -89,10 +89,10 @@ spec:
 ### Repository structure
 ```bash
 freenginx/
-├── 🚀 freenginx.conf                    # Main freenginx configuration file
+├── 🚀 freenginx.conf                    # Main FreeNGINX configuration file
 ├── 🔧 AGENTS.md                         # Dedicated file that guides AI coding agents
-├── 🛡️ freenginx-seccomp.json            # Seccomp profile for freenginx security
-├── 📦 freenginx.toml                    # Additional freenginx configuration (TOML format)
+├── 🛡️ freenginx-seccomp.json            # Seccomp profile for FreeNGINX security
+├── 📦 freenginx.toml                    # Additional FreeNGINX  configuration (TOML format)
 ├── 📜 CODE_OF_CONDUCT.md                # Code of Conduct for contributors
 ├── 🤝 CONTRIBUTING.md                   # Contributing guidelines
 ├── 🔑 cosign.pub                        # Public key for image signing (Sigstore/cosign)
@@ -102,7 +102,7 @@ freenginx/
 ├── 🙈 .dockerignore                     # Files to exclude from Docker build context
 ├── ⚙️ .editorconfig                     # EditorConfig for consistent coding styles
 ├── 🔧 .env                              # Environment variables configuration
-├── 📄 example.conf                      # Example freenginx configuration
+├── 📄 example.conf                      # Example FreeNGINX configuration
 ├── ⚙️ .gitattributes                    # Git attributes configuration
 ├── 📁 .github/                          # GitHub-specific configuration
 │   ├── 📋 dependabot.yml                # Automated dependency updates
