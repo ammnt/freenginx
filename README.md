@@ -4,7 +4,7 @@
 |---|---|---|---|---|---|---|
 | [![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml) | ![Version](https://img.shields.io/github/v/release/ammnt/freenginx) | [![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers) | ![Feature](https://img.shields.io/badge/feature-distroless-blue) | [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues) | ![GitHub Open Source](https://img.shields.io/badge/open%20source-yes-orange) | ![GitHub Maintained](https://img.shields.io/badge/maintained-no-yellow) |
 
-> **Production-ready, security-focused freenginx image with HTTP/3, QUIC, ECH and PQC support.**
+> **Production-ready, security-focused FreeNGINX image with HTTP/3, QUIC, ECH and PQC support.**
 
 > [!IMPORTANT]
 > The QuicTLS is now deprecated. I use OpenSSL, since this library natively supports OCSP, PQC, ECH and QUIC⚠️
@@ -89,14 +89,14 @@ spec:
 ### Repository structure
 ```bash
 freenginx/
-├── 🚀 freenginx.conf                        # Main freenginx configuration file
+├── 🚀 freenginx.conf                    # Main freenginx configuration file
 ├── 🔧 AGENTS.md                         # Dedicated file that guides AI coding agents
-├── 🛡️ freenginx-seccomp.json                # Seccomp profile for freenginx security
-├── 📦 freenginx.toml                        # Additional freenginx configuration (TOML format)
+├── 🛡️ freenginx-seccomp.json            # Seccomp profile for freenginx security
+├── 📦 freenginx.toml                    # Additional freenginx configuration (TOML format)
 ├── 📜 CODE_OF_CONDUCT.md                # Code of Conduct for contributors
 ├── 🤝 CONTRIBUTING.md                   # Contributing guidelines
 ├── 🔑 cosign.pub                        # Public key for image signing (Sigstore/cosign)
-├── ⚙️ default.conf                      # Default freenginx configuration
+├── ⚙️ default.conf                      # Default FreeNGINX configuration
 ├── 🐳 dive-ci.yml                       # Dive configuration for Docker image analysis
 ├── 🐳 Dockerfile.template               # Dockerfile template (dynamic generation)
 ├── 🙈 .dockerignore                     # Files to exclude from Docker build context
@@ -185,7 +185,7 @@ Found an issue or have an improvement?
 - [Open an Issue](https://github.com/ammnt/freenginx/issues/new?template=bug_report.md)
 - [Feature Request](https://github.com/ammnt/freenginx/issues/new?template=feature_request.md)
 
-> **Note:** This image is designed for security-conscious production environments. For development purposes, consider using the official freenginx image with full debugging capabilities.
+> **Note:** This image is designed for security-conscious production environments. For development purposes, consider using the official FreeNGINX image with full debugging capabilities.
 
 ## 📄 License
 
