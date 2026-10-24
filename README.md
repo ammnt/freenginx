@@ -1,20 +1,13 @@
 # 🚀 Distroless FreeNGINX: Hardened & Optimized image
 
-[![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml)
-![Version](https://img.shields.io/github/v/release/ammnt/freenginx)
-[![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers)
-![Feature](https://img.shields.io/badge/feature-distroless-blue)
-[![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues)
-![GitHub Maintained](https://img.shields.io/badge/open%20source-yes-orange)
-![GitHub Maintained](https://img.shields.io/badge/maintained-yes-yellow)
+| | | | | | | |
+|---|---|---|---|---|---|---|
+| [![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml) | ![Version](https://img.shields.io/github/v/release/ammnt/freenginx) | [![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers) | ![Feature](https://img.shields.io/badge/feature-distroless-blue) | [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues) | ![GitHub Open Source](https://img.shields.io/badge/open%20source-yes-orange) | ![GitHub Maintained](https://img.shields.io/badge/maintained-no-yellow) |
 
 > **Production-ready, security-focused FreeNGINX image with HTTP/3, QUIC, ECH and PQC support.**
 
 > [!IMPORTANT]
 > The QuicTLS is now deprecated. I use OpenSSL, since this library natively supports OCSP, PQC, ECH and QUIC⚠️
-
-> [!IMPORTANT]
-> NJS module has been removed due to security vulnerabilities in libxml2/libxslt dependencies⚠️
 
 > [!TIP]
 > You can find an example [configuration file](example.conf) in the repository for successfully configuring HTTP/3, ECH and PQC💡
@@ -173,6 +166,7 @@ freenginx/
 ### **Performance Features**
 - **zlib-ng** with modern compression algorithms (RFC 1950, RFC 1951, RFC 1952)
 - **PCRE2 with JIT** compilation for regex performance
+- **NJS with QuickJS-NG** - JavaScript scripting support with modern engine
 - **Thread pool support** for async I/O operations
 - **TCP Fast Open** and **SSL session resumption** (RFC 7413, RFC 8446)
 - **Graceful shutdown** - SIGQUIT handling for proper connection draining (RFC 7230)
