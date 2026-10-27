@@ -2,9 +2,21 @@
 
 | | | | | | | |
 |---|---|---|---|---|---|---|
-| [![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml) | ![Version](https://img.shields.io/github/v/release/ammnt/freenginx) | [![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers) | ![Feature](https://img.shields.io/badge/feature-distroless-blue) | [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues) | ![GitHub Open Source](https://img.shields.io/badge/open%20source-yes-orange) | ![GitHub Maintained](https://img.shields.io/badge/maintained-no-yellow) |
+| [![CI/CD](https://github.com/ammnt/freenginx/actions/workflows/build.yml/badge.svg)](https://github.com/ammnt/freenginx/actions/workflows/build.yml) | ![Version](https://img.shields.io/github/v/release/ammnt/freenginx) | [![GitHub stars](https://img.shields.io/github/stars/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/stargazers) | ![Feature](https://img.shields.io/badge/feature-distroless-blue) | [![GitHub issues open](https://img.shields.io/github/issues/ammnt/freenginx.svg)](https://github.com/ammnt/freenginx/issues) | ![GitHub Open Source](https://img.shields.io/badge/open%20source-yes-orange) | ![GitHub Maintained](https://img.shields.io/badge/maintained-no-red) |
 
 > **Production-ready, security-focused FreeNGINX image with HTTP/3, QUIC, ECH and PQC support.**
+
+> [!WARNING]
+> ## 🗄️ The project is archived and no longer maintained
+>
+> **This project has reached end-of-life and is no longer actively maintained.**
+> No further updates, bug fixes, security patches, or feature additions will be provided.
+>
+> ### 👉 Please migrate to: [github.com/ammnt/nginx](https://github.com/ammnt/nginx/)
+>
+> The successor project provides the same hardened, distroless, security-focused approach with ongoing maintenance, up-to-date dependencies, and continued security patching. We strongly recommend all users migrate to ensure they receive critical updates.
+>
+> Thank you to everyone who used this image❤️
 
 > [!IMPORTANT]
 > The QuicTLS is now deprecated. I use OpenSSL, since this library natively supports OCSP, PQC, ECH and QUIC⚠️
