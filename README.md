@@ -6,7 +6,7 @@
 
 > **Production-ready, security-focused FreeNGINX image with HTTP/3, QUIC, ECH and PQC support.**
 
-> [!WARNING]
+> [!CAUTION]
 > ## 🗄️ The project is archived and no longer maintained
 >
 > **This project has reached end-of-life and is no longer actively maintained.**
@@ -24,7 +24,7 @@
 > [!TIP]
 > You can find an example [configuration file](example.conf) in the repository for successfully configuring HTTP/3, ECH and PQC💡
 
-> [!IMPORTANT]
+> [!WARNING]
 > UID/GID changed to 10001 - it's [recommended](https://kubernetes.io/docs/tasks/configure-pod-container/security-context/) for Kubernetes and prevents conflicts with system users⚠️
 
 ## 🌐 Image Variants
